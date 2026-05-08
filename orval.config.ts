@@ -3,7 +3,7 @@ import { defineConfig } from 'orval';
 export default defineConfig({
   api: {
     input: {
-      target: 'http://localhost:8080/openapi.json'
+      target: './openapi3.json'
     },
     output: {
       mode: 'tags',
@@ -12,13 +12,9 @@ export default defineConfig({
       client: 'react-query',
       override: {
         mutator: {
-          path: './src/lib/api-client.ts',
-          name: 'customInstance'
+          path: './src/lib/api-client.ts'
         }
       }
-    },
-    hooks: {
-      afterAllFilesWrite: 'prettier --write'
     }
   }
 });

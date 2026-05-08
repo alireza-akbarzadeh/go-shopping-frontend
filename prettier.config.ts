@@ -25,6 +25,10 @@ const config = {
     '^[@]/',
     '',
     '^[.]'
+  ],
+  ignorePatterns: [
+    'src/services/**/*', // Ignore all files within src/services
+    'src/lib/api-client.ts' // Also ignore your custom mutator if you don't want it formatted
   ]
 };
 

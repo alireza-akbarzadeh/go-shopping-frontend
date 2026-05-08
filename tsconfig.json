@@ -78,5 +78,5 @@
   // ============================================================================
   // FILE EXCLUSION
   // ============================================================================
-  "exclude": ["node_modules","orval.config.ts", "src/services"]
+  "exclude": ["node_modules", "orval.config.ts", "src/services"]
 }

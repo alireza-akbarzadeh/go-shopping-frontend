@@ -10,7 +10,7 @@ import tseslint from 'typescript-eslint';
 
 export default defineConfig(
   {
-    ignores: ['.next', '*.js']
+    ignores: ['.next', '*.js', 'orval.config.t']
   },
   /**
    * eslint-config-next automatically configures:
