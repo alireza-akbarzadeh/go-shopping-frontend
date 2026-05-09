@@ -106,37 +106,35 @@ export default function ProductDomain() {
 
   return (
     <>
-      {/* Breadcrumb */}
-      <div className='border-border border-b'>
-        <div className='container mx-auto px-4 py-4'>
-          <nav className='flex items-center gap-2 text-sm'>
-            <Link
-              href='/'
-              className='text-muted-foreground hover:text-foreground transition-colors'
-            >
-              Home
-            </Link>
-            <IconChevronRight className='text-muted-foreground h-4 w-4' />
-            <Link
-              href='/shop'
-              className='text-muted-foreground hover:text-foreground transition-colors'
-            >
-              Shop
-            </Link>
-            <IconChevronRight className='text-muted-foreground h-4 w-4' />
-            <Link
-              href={`/shop?category=${product.category}`}
-              className='text-muted-foreground hover:text-foreground transition-colors'
-            >
-              {product.category}
-            </Link>
-            <IconChevronRight className='text-muted-foreground h-4 w-4' />
-            <span className='text-foreground font-medium'>{product.name}</span>
-          </nav>
+      <main className='container mx-auto mt-20 px-4 py-8 lg:py-12'>
+        <div className=''>
+          <div className='container mx-auto px-4 py-4'>
+            <nav className='flex items-center gap-2 text-sm'>
+              <Link
+                href='/'
+                className='text-muted-foreground hover:text-foreground transition-colors'
+              >
+                Home
+              </Link>
+              <IconChevronRight className='text-muted-foreground h-4 w-4' />
+              <Link
+                href='/shop'
+                className='text-muted-foreground hover:text-foreground transition-colors'
+              >
+                Shop
+              </Link>
+              <IconChevronRight className='text-muted-foreground h-4 w-4' />
+              <Link
+                href={`/shop?category=${product.category}`}
+                className='text-muted-foreground hover:text-foreground transition-colors'
+              >
+                {product.category}
+              </Link>
+              <IconChevronRight className='text-muted-foreground h-4 w-4' />
+              <span className='text-foreground font-medium'>{product.name}</span>
+            </nav>
+          </div>
         </div>
-      </div>
-
-      <main className='container mx-auto px-4 py-8 lg:py-12'>
         {/* Product Section */}
         <div className='grid gap-8 lg:grid-cols-2 lg:gap-16'>
           {/* Image Gallery */}
