@@ -10,26 +10,7 @@ const config = {
   bracketSameLine: false,
   arrowParens: 'always',
   endOfLine: 'lf',
-  plugins: [
-    '@ianvs/prettier-plugin-sort-imports',
-    'prettier-plugin-tailwindcss' // must be last
-  ],
-  importOrder: [
-    '^react$',
-    '',
-    '<TYPES>',
-    '<TYPES>^[.]',
-    '',
-    '<THIRD_PARTY_MODULES>',
-    '',
-    '^[@]/',
-    '',
-    '^[.]'
-  ],
-  ignorePatterns: [
-    'src/services/**/*', // Ignore all files within src/services
-    'src/lib/api-client.ts' // Also ignore your custom mutator if you don't want it formatted
-  ]
+  plugins: ['prettier-plugin-tailwindcss']
 };
 
 export default config;

@@ -7,10 +7,9 @@ import type { PropsWithChildren } from 'react';
 import config from '~/_config';
 import { Geist, Geist_Mono, Nunito_Sans } from 'next/font/google';
 
-import Footer from '@/components/footer';
-import GithubCorner from '@/components/github-corner';
-import Navbar from '@/components/navbar';
 import RootProvider from '@/components/providers/root';
+import { Navbar } from '../components/navbar';
+import { Footer } from '../components/footer';
 
 const nunitoSans = Nunito_Sans({ variable: '--font-sans' });
 
@@ -43,16 +42,11 @@ export default function RootLayout({ children }: TRootLayout) {
     <html lang='en' className={nunitoSans.variable} suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <RootProvider>
-          <div className='grid min-h-dvh grid-rows-[auto_1fr_auto]'>
+          <main className='min-h-screen'>
             <Navbar />
             {children}
             <Footer />
-
-            <GithubCorner
-              title='Get started on GitHub'
-              url='https://github.com/doinel1a/next-ts-shadcn-ui'
-            />
-          </div>
+          </main>
         </RootProvider>
       </body>
     </html>

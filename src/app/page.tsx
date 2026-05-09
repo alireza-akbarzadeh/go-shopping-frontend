@@ -1,15 +1,7 @@
-import dynamic from 'next/dynamic';
-
-import { Skeleton } from '@/components/ui/skeleton';
-
-const Counter = dynamic(() => import('@/components/counter'), {
-  loading: () => <Skeleton className='h-44 w-72 rounded-md' />
-});
+import { HomeDomains } from "../domains/home/home.domain";
 
 export default function HomePage() {
   return (
-    <main className='flex h-full w-full flex-col items-center justify-center'>
-      <Counter />
-    </main>
+    <HomeDomains />
   );
 }

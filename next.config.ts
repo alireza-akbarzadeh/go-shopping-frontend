@@ -8,7 +8,15 @@ import type { NextConfig } from 'next';
 
 const config = {
   reactCompiler: true,
-  reactStrictMode: true
+  reactStrictMode: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com'
+      }
+    ]
+  }
 } satisfies NextConfig;
 
 export default config;

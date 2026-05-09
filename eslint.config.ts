@@ -7,6 +7,7 @@ import { configs as sonarjs } from 'eslint-plugin-sonarjs';
 import unicorn from 'eslint-plugin-unicorn';
 import { defineConfig } from 'eslint/config';
 import tseslint from 'typescript-eslint';
+import simpleImportSort from 'eslint-plugin-simple-import-sort';
 
 export default defineConfig(
   {
@@ -23,6 +24,7 @@ export default defineConfig(
   sonarjs.recommended,
   unicorn.configs.recommended,
   reactCompilerPlugin.configs.recommended,
+  simpleImportSort.configs.recommended,
   {
     linterOptions: {
       reportUnusedDisableDirectives: true
@@ -129,7 +131,9 @@ export default defineConfig(
       'unicorn/no-null': 'off',
       'unicorn/no-useless-undefined': 'off',
       'unicorn/prefer-includes': 'off', // Covered by @typescript-eslint
-      'unicorn/prefer-string-starts-ends-with': 'off' // Covered by @typescript-eslint
+      'unicorn/prefer-string-starts-ends-with': 'off', // Covered by @typescript-eslint
+      'simple-import-sort/imports': 'error',
+      'simple-import-sort/exports': 'error'
     }
   }
 );
