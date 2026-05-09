@@ -34,7 +34,6 @@ export const useCart = create<CartStore>()(
   persist(
     (set, get) => ({
       items: [],
-
       addItem: (newItem) =>
         set((state) => {
           const index = state.items.findIndex(
@@ -45,11 +44,12 @@ export const useCart = create<CartStore>()(
           const quantity = newItem.quantity || 1;
 
           if (index > -1) {
-            const updated = [...state.items];
-            updated[index]?.quantity += quantity;
-            return { items: updated };
+            return {
+              items: state.items.map((item, i) =>
+                i === index ? { ...item, quantity: item.quantity + quantity } : item
+              )
+            };
           }
-
           return {
             items: [...state.items, { ...newItem, quantity }]
           };
