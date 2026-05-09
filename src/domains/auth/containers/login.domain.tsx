@@ -5,12 +5,21 @@ import { Label } from '@/components/ui/label';
 import { IconCheck, IconMail } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAppForm } from '~/src/components/forms/useAppForm';
 import { loginFormSchema } from '../auth.schema';
+import { useAuthStore } from '@/store/auth.store';
+import { toast } from 'sonner';
 
 export function LoginDomain() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams?.get('callbackUrl') || '/';
+
+  const login = useAuthStore((s) => s.login);
+  const isLoading = useAuthStore((s) => s.isLoading);
+  const error = useAuthStore((s) => s.error);
+  const clearError = useAuthStore((s) => s.clearError);
 
   const form = useAppForm({
     defaultValues: {
@@ -22,9 +31,16 @@ export function LoginDomain() {
       onChange: loginFormSchema,
       onBlur: loginFormSchema
     },
-    onSubmit: async ({ value, formApi }) => {
-      console.log('Login attempt:', value);
-      router.push('/account');
+    onSubmit: async ({ value }) => {
+      clearError();
+      const response = await login({ email: value.email, password: value.password });
+      console.log(response);
+      if (response.status == 200) {
+        toast.success(response.message);
+        router.push(callbackUrl);
+      } else {
+        toast.error(response.response.message);
+      }
     }
   });
 
@@ -79,6 +95,8 @@ export function LoginDomain() {
               }}
               className='space-y-6'
             >
+              {/* Show error from store if any */}
+              {error && <div className='mb-2 text-sm text-red-500'>{error}</div>}
               {/* Email Field */}
               <form.AppField name='email'>
                 {(field) => (
@@ -109,7 +127,7 @@ export function LoginDomain() {
                   </div>
                 )}
               </form.AppField>
-              <form.Submit label='login' />
+              <form.Submit label={isLoading ? 'Logging in...' : 'login'} disabled={isLoading} />
             </form.Root>
           </form.AppForm>
 

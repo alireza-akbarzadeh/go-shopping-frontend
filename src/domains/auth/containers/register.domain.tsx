@@ -23,7 +23,8 @@ const registerFormSchema = z
   .object({
     firstName: z.string().min(2, 'First name is required'),
     lastName: z.string().min(2, 'Last name is required'),
-    email: z.string().email('Invalid email address'),
+    email: z.email('Invalid email address'),
+    phone: z.string().email('Invalid phone number'),
     password: z.string().min(8, 'Password must be at least 8 characters'),
     confirmPassword: z.string(),
     acceptTerms: z.boolean().refine((val) => val, {
@@ -46,6 +47,7 @@ export function RegisterDomain() {
       firstName: '',
       lastName: '',
       email: '',
+      phone: '',
       password: '',
       confirmPassword: '',
       acceptTerms: false,
@@ -59,8 +61,9 @@ export function RegisterDomain() {
       const success = await register({
         email: value.email,
         password: value.password,
-        firstName: value.firstName,
-        lastName: value.lastName
+        first_name: value.firstName,
+        last_name: value.lastName,
+        phone: value.phone
       });
 
       if (success) {
@@ -200,6 +203,16 @@ export function RegisterDomain() {
                   <field.TextField
                     label='Email address'
                     placeholder='name@example.com'
+                    startIcon={IconMail}
+                    className='h-12'
+                  />
+                )}
+              </form.AppField>
+              <form.AppField name='phone'>
+                {(field) => (
+                  <field.TextField
+                    label='phone number'
+                    placeholder='09121223880'
                     startIcon={IconMail}
                     className='h-12'
                   />
