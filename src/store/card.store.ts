@@ -30,7 +30,7 @@ type CartStore = {
   getTotal: () => number;
 };
 
-export const useCart = create<CartStore>()(
+export const useCartStore = create<CartStore>()(
   persist(
     (set, get) => ({
       items: [],

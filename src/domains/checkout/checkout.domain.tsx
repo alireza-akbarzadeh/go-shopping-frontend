@@ -24,7 +24,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Navbar } from '@/components/navbar';
 import { Footer } from '@/components/footer';
-import { useCart } from '~/src/store/card.store';
+import { useCartStore } from '~/src/store/card.store';
 
 const steps = [
   { id: 1, name: 'Shipping', icon: IconMapPin },
@@ -55,7 +55,7 @@ const shippingMethods = [
 
 export default function CheckoutDomain() {
   const router = useRouter();
-  const { items, getTotal, clearCart } = useCart();
+  const { items, getTotal, clearCart } = useCartStore();
   const [currentStep, setCurrentStep] = useState(1);
   const [isProcessing, setIsProcessing] = useState(false);
 

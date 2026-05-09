@@ -11,7 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { Navbar } from '@/components/navbar';
 import { Footer } from '@/components/footer';
 import { products } from '@/lib/data';
-import { useCart } from '~/src/store/card.store';
+import { useCartStore } from '~/src/store/card.store';
 import {
   IconArrowRight,
   IconChevronRight,
@@ -25,7 +25,7 @@ import {
 } from '@tabler/icons-react';
 
 export default function CartPage() {
-  const { items, removeItem, updateQuantity, getSubtotal, getDiscount, getTotal } = useCart();
+  const { items, removeItem, updateQuantity, getSubtotal, getDiscount, getTotal } = useCartStore();
   const [promoCode, setPromoCode] = useState('');
   const [promoApplied, setPromoApplied] = useState(false);
   const [promoDiscount, setPromoDiscount] = useState(0);

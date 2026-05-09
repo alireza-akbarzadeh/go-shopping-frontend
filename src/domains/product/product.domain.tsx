@@ -24,7 +24,7 @@ import {
   IconTruck
 } from '@tabler/icons-react';
 import { ProductCard } from '~/src/domains/shop/components/prodcut-card';
-import { useCart } from '~/src/store/card.store';
+import { useCartStore } from '~/src/store/card.store';
 
 const colors = [
   { name: 'Charcoal', value: '#333333' },
@@ -72,7 +72,7 @@ export default function ProductDomain() {
   const params = useParams();
   const productId = Number(params['id']);
   const product = products.find((p) => p.id === productId);
-  const { addItem } = useCart();
+  const { addItem } = useCartStore();
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedColor, setSelectedColor] = useState(colors[0]);

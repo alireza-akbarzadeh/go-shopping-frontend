@@ -7,7 +7,8 @@ import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 import { navLinks } from '@/lib/data';
 import { IconMenu, IconMoon, IconShoppingBag, IconSun, IconUser, IconX } from '@tabler/icons-react';
-import { useCart } from '../store/card.store';
+import { useCartStore } from '../store/card.store';
+import { useAuthStore } from '../store/auth.store';
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -15,8 +16,8 @@ export function Navbar() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
-  const { getItemCount } = useCart();
-  const itemCount = getItemCount();
+  const itemCount = useCartStore((state) => state.getItemCount());
+  const { isAuthenticated, user } = useAuthStore();
 
   useEffect(() => {
     setMounted(true);
@@ -76,10 +77,15 @@ export function Navbar() {
               </Button>
             )}
 
-            <Button variant='ghost' size='icon' className='hidden rounded-full sm:flex'>
-              <IconUser className='h-5 w-5' />
-              <span className='sr-only'>Account</span>
-            </Button>
+            <Link href={isAuthenticated ? '/account' : '/login'}>
+              <Button variant='ghost' size='icon' className='relative hidden rounded-full sm:flex'>
+                <IconUser className='h-5 w-5' />
+                {mounted && isAuthenticated && (
+                  <span className='bg-accent absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full' />
+                )}
+                <span className='sr-only'>Account</span>
+              </Button>
+            </Link>
 
             <Link href='/cart'>
               <Button variant='ghost' size='icon' className='relative rounded-full'>
