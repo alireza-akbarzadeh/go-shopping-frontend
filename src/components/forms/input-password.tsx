@@ -50,7 +50,7 @@ export function InputPassword({
             placeholder={placeholder}
             onBlur={field.handleBlur}
             onChange={(e) => field.handleChange(e.target.value)}
-            className='pl-12'
+            className={cn('h-12 pr-12 pl-10', className)}
           />
 
           <Button

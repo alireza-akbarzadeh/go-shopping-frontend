@@ -1,14 +1,12 @@
-import { useControllableState } from '@radix-ui/react-use-controllable-state';
 import { format } from 'date-fns';
-import { LucideCalendar } from 'lucide-react';
-import type { ComponentPropsWithRef } from 'react';
+import { useState, useEffect, type ComponentPropsWithRef } from 'react';
 import type { PropsBase, PropsSingle } from 'react-day-picker';
 import type { Except, Simplify } from 'type-fest';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-
 import { Button } from './button';
 import { Calendar, type CalendarBaseProps } from './calendar';
+import { IconCalendar } from '@tabler/icons-react';
 
 type CalendarProps = Simplify<
   Except<PropsBase & PropsSingle, 'mode'> &
@@ -24,11 +22,35 @@ export type DatePickerProps = ComponentPropsWithRef<typeof Button> & {
 };
 
 function DatePicker({ calendar, className, ...props }: DatePickerProps) {
-  const [date, setDate] = useControllableState({
-    prop: calendar?.selected,
-    onChange: calendar?.onSelect,
-    defaultProp: calendar?.defaultSelected ?? new Date()
-  });
+  // Determine if we're in controlled mode
+  const isControlled = calendar?.selected !== undefined;
+  // Internal state for uncontrolled mode
+  const [internalDate, setInternalDate] = useState<Date | undefined>(
+    calendar?.defaultSelected ?? new Date()
+  );
+
+  // Sync internal state when defaultSelected changes (uncontrolled)
+  useEffect(() => {
+    if (!isControlled && calendar?.defaultSelected) {
+      setInternalDate(calendar.defaultSelected);
+    }
+  }, [isControlled, calendar?.defaultSelected]);
+
+  // The actual date to display
+  const date = isControlled ? calendar.selected : internalDate;
+
+  const handleDateSelect = (selectedDate: Date | undefined) => {
+    if (!selectedDate) return;
+
+    if (isControlled) {
+      // Controlled mode: just call onSelect
+      calendar.onSelect?.(selectedDate);
+    } else {
+      // Uncontrolled mode: update internal state and call onSelect if provided
+      setInternalDate(selectedDate);
+      calendar?.onSelect?.(selectedDate);
+    }
+  };
 
   return (
     <Popover>
@@ -42,7 +64,7 @@ function DatePicker({ calendar, className, ...props }: DatePickerProps) {
           )}
           {...props}
         >
-          <LucideCalendar className='size-4' />
+          <IconCalendar className='size-4' />
           <span>{date ? format(date, 'PPP') : 'Pick a date'}</span>
         </Button>
       </PopoverTrigger>
@@ -50,9 +72,7 @@ function DatePicker({ calendar, className, ...props }: DatePickerProps) {
         <Calendar
           mode='single'
           selected={date}
-          onSelect={(selected) => {
-            if (selected) setDate(selected);
-          }}
+          onSelect={handleDateSelect}
           autoFocus
           {...calendar}
         />

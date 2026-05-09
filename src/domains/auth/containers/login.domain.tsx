@@ -1,54 +1,32 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { IconCheck, IconMail } from '@tabler/icons-react';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { useAuthStore } from '@/store/auth.store';
-import {
-  IconArrowRight,
-  IconCheck,
-  IconEye,
-  IconEyeOff,
-  IconLoader2,
-  IconLock,
-  IconMail
-} from '@tabler/icons-react';
+import { useAppForm } from '~/src/components/forms/useAppForm';
+import { loginFormSchema } from '../auth.schema';
 
 export function LoginDomain() {
   const router = useRouter();
-  const { login, isLoading, error, clearError, isAuthenticated } = useAuthStore();
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
-
-  // Redirect if already authenticated
-  useEffect(() => {
-    if (isAuthenticated) {
+  const form = useAppForm({
+    defaultValues: {
+      email: '',
+      password: '',
+      rememberMe: false
+    },
+    validators: {
+      onChange: loginFormSchema,
+      onBlur: loginFormSchema
+    },
+    onSubmit: async ({ value, formApi }) => {
+      console.log('Login attempt:', value);
       router.push('/account');
     }
-  }, [isAuthenticated, router]);
-
-  // Clear error when inputs change
-  useEffect(() => {
-    if (error) {
-      clearError();
-    }
-  }, [email, password]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const success = await login(email, password);
-    if (success) {
-      router.push('/account');
-    }
-  };
+  });
 
   return (
     <div className='bg-background flex min-h-screen'>
@@ -92,101 +70,48 @@ export function LoginDomain() {
             </div>
           </motion.div>
 
-          {/* Error Message */}
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className='bg-destructive/10 border-destructive/20 text-destructive mb-6 rounded-xl border p-4 text-sm'
+          <form.AppForm>
+            <form.Root
+              onSubmit={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                form.handleSubmit();
+              }}
+              className='space-y-6'
             >
-              {error}
-            </motion.div>
-          )}
+              {/* Email Field */}
+              <form.AppField name='email'>
+                {(field) => (
+                  <field.TextField
+                    startIcon={IconMail}
+                    label='Email address'
+                    placeholder='name@example.com'
+                    className='h-12 pl-10'
+                  />
+                )}
+              </form.AppField>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className='space-y-5'>
-            {/* Email */}
-            <div className='space-y-2'>
-              <Label htmlFor='email'>Email address</Label>
-              <div className='relative'>
-                <IconMail className='text-muted-foreground absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2' />
-                <Input
-                  id='email'
-                  type='email'
-                  placeholder='name@example.com'
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className='h-12 pl-10'
-                  required
-                />
-              </div>
-            </div>
+              {/* Password Field */}
+              <form.AppField name='password'>
+                {(field) => (
+                  <field.InputPassword label='Password' placeholder='Enter your password' />
+                )}
+              </form.AppField>
 
-            {/* Password */}
-            <div className='space-y-2'>
-              <div className='flex items-center justify-between'>
-                <Label htmlFor='password'>Password</Label>
-                <Link href='/forgot-password' className='text-accent text-sm hover:underline'>
-                  Forgot password?
-                </Link>
-              </div>
-              <div className='relative'>
-                <IconLock className='text-muted-foreground absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2' />
-                <Input
-                  id='password'
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder='Enter your password'
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className='h-12 pr-10 pl-10'
-                  required
-                />
-                <button
-                  type='button'
-                  onClick={() => setShowPassword(!showPassword)}
-                  className='text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 transition-colors'
-                >
-                  {showPassword ? (
-                    <IconEyeOff className='h-5 w-5' />
-                  ) : (
-                    <IconEye className='h-5 w-5' />
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {/* Remember Me */}
-            <div className='flex items-center gap-2'>
-              <Checkbox
-                id='remember'
-                checked={rememberMe}
-                onCheckedChange={(checked) => setRememberMe(checked as boolean)}
-              />
-              <Label htmlFor='remember' className='cursor-pointer text-sm font-normal'>
-                Remember me for 30 days
-              </Label>
-            </div>
-
-            {/* Submit Button */}
-            <Button
-              type='submit'
-              size='lg'
-              className='bg-accent hover:bg-accent/90 text-accent-foreground h-12 w-full'
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <IconLoader2 className='mr-2 h-5 w-5 animate-spin' />
-                  Signing in...
-                </>
-              ) : (
-                <>
-                  Sign in
-                  <IconArrowRight className='ml-2 h-5 w-5' />
-                </>
-              )}
-            </Button>
-          </form>
+              {/* Remember Me Checkbox */}
+              <form.AppField name='rememberMe'>
+                {(field) => (
+                  <div className='flex items-center gap-2'>
+                    <field.Checkbox label='Remember me' />
+                    <Label htmlFor={field.name} className='cursor-pointer text-sm font-normal'>
+                      Remember me for
+                    </Label>
+                  </div>
+                )}
+              </form.AppField>
+              <form.Submit label='login' />
+            </form.Root>
+          </form.AppForm>
 
           {/* Divider */}
           <div className='relative my-8'>
@@ -239,14 +164,11 @@ export function LoginDomain() {
         </motion.div>
       </div>
 
-      {/* Right Side - Image/Branding */}
+      {/* Right Side - Branding */}
       <div className='bg-accent/5 relative hidden flex-1 items-center justify-center overflow-hidden p-12 lg:flex'>
         <div className='from-accent/10 to-accent/5 absolute inset-0 bg-gradient-to-br via-transparent' />
-
-        {/* Decorative Elements */}
         <div className='bg-accent/10 absolute top-1/4 left-1/4 h-64 w-64 rounded-full blur-3xl' />
         <div className='bg-accent/20 absolute right-1/4 bottom-1/4 h-48 w-48 rounded-full blur-3xl' />
-
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -261,8 +183,6 @@ export function LoginDomain() {
             Discover exclusive collections and enjoy personalized recommendations tailored just for
             you. Sign in to access your wishlist, track orders, and more.
           </p>
-
-          {/* Features */}
           <div className='mt-12 grid grid-cols-3 gap-6'>
             {[
               { label: 'Secure Checkout', value: '256-bit SSL' },

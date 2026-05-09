@@ -1,5 +1,7 @@
+'use client';
 import {
   IconCheckbox,
+  IconError404,
   IconInfoCircle,
   IconLoader2,
   IconTriangleSquareCircle
@@ -8,17 +10,18 @@ import { useTheme } from 'next-themes';
 import { Toaster as Sonner, type ToasterProps } from 'sonner';
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const theme = useTheme();
+  const { theme } = useTheme();
+  const themeValue = theme === 'dark' || theme === 'light' || theme === 'system' ? theme : 'dark';
 
   return (
     <Sonner
-      theme={theme.value}
+      theme={themeValue}
       className='toaster group'
       icons={{
         success: <IconCheckbox className='size-4' />,
         info: <IconInfoCircle className='size-4' />,
         warning: <IconTriangleSquareCircle className='size-4' />,
-        error: <OctagonXIcon className='size-4' />,
+        error: <IconError404 className='size-4' />,
         loading: <IconLoader2 className='size-4 animate-spin' />
       }}
       style={

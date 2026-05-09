@@ -20,7 +20,7 @@ export function SubscribeButton({
           type='submit'
           disabled={!canSubmit || isSubmitting}
           className={cn(
-            'h-12 w-full rounded-xl text-[10px] font-black tracking-widest uppercase',
+            'h-12 w-full cursor-pointer rounded-xl text-[10px] font-black tracking-widest uppercase',
             className
           )}
           {...props}

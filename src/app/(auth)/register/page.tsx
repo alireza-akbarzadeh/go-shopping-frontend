@@ -1,5 +1,5 @@
 import { RegisterDomain } from '@/domains/auth/containers/register.domain';
 
-export function RegisterPage() {
+export default function RegisterPage() {
   return <RegisterDomain />;
 }

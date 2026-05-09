@@ -4,12 +4,10 @@ import '../styles/globals.scss';
 import type { Metadata, Viewport } from 'next';
 import type { PropsWithChildren } from 'react';
 
-import config from '~/_config';
 import { Geist, Geist_Mono, Nunito_Sans } from 'next/font/google';
+import config from '~/_config';
 
 import RootProvider from '@/components/providers/root';
-import { Navbar } from '../components/navbar';
-import { Footer } from '../components/footer';
 
 const nunitoSans = Nunito_Sans({ variable: '--font-sans' });
 
@@ -41,13 +39,7 @@ export default function RootLayout({ children }: TRootLayout) {
   return (
     <html lang='en' className={nunitoSans.variable} suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <RootProvider>
-          <main className='min-h-screen bg-background flex flex-col'>
-            <Navbar />
-            {children}
-            <Footer />
-          </main>
-        </RootProvider>
+        <RootProvider>{children}</RootProvider>
       </body>
     </html>
   );
