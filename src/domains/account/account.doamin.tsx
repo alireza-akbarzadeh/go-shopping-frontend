@@ -129,12 +129,6 @@ export function AccountDomain() {
   const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/login');
-    }
-  }, [isAuthenticated, router]);
-
-  useEffect(() => {
     if (user) {
       setEditForm({
         firstName: user.firstName,
