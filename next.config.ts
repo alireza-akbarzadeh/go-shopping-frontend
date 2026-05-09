@@ -10,6 +10,7 @@ const config = {
   reactCompiler: true,
   reactStrictMode: true,
   images: {
+    dangerouslyAllowLocalIP: true,
     remotePatterns: [
       {
         protocol: 'https',
