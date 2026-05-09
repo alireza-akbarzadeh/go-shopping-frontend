@@ -24,6 +24,7 @@ import {
   IconTruck
 } from '@tabler/icons-react';
 import { ProductCard } from '~/src/domains/shop/components/prodcut-card';
+import { useCart } from '~/src/store/card.store';
 
 const colors = [
   { name: 'Charcoal', value: '#333333' },
@@ -69,8 +70,9 @@ const reviews = [
 
 export default function ProductDomain() {
   const params = useParams();
-  const productId = Number(params.id || 1);
+  const productId = Number(params['id']);
   const product = products.find((p) => p.id === productId);
+  const { addItem } = useCart();
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedColor, setSelectedColor] = useState(colors[0]);
@@ -100,6 +102,16 @@ export default function ProductDomain() {
     : 0;
 
   const handleAddToCart = () => {
+    addItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      originalPrice: product.originalPrice,
+      image: product.image,
+      color: selectedColor?.name,
+      size: selectedSize || undefined,
+      quantity
+    });
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2000);
   };
