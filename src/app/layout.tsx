@@ -42,7 +42,7 @@ export default function RootLayout({ children }: TRootLayout) {
     <html lang='en' className={nunitoSans.variable} suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <RootProvider>
-          <main className='min-h-screen'>
+          <main className='min-h-screen bg-background flex flex-col'>
             <Navbar />
             {children}
             <Footer />
