@@ -21,7 +21,7 @@ export const registerFormSchema = z
     acceptTerms: z.boolean().refine((val) => val, {
       message: 'You must accept terms'
     }),
-    acceptMarketing: z.boolean() // ✅ required boolean, default comes from form defaultValues
+    acceptMarketing: z.boolean()
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Passwords do not match',

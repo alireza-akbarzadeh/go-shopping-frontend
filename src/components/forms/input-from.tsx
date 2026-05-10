@@ -33,10 +33,12 @@ import { useMediaDevices } from '~/src/hooks/useMediaDevices';
 import { createContextFactory } from '~/src/hooks/useContextFactory';
 import { IconChevronDown } from '@tabler/icons-react';
 
-type InputPhoneProps = ComponentProps<typeof PhoneInputPrimitive.default> & {
+type InputPhoneProps = Omit<
+  ComponentProps<typeof PhoneInputPrimitive.default>,
+  'value' | 'onChange'
+> & {
   label?: string;
 };
-
 export function InputPhone({ label, className, ...props }: InputPhoneProps) {
   const field = useFieldContext<PhoneInputPrimitive.Value>();
 
