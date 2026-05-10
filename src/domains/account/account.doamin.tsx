@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import {
   AlertDialog,
@@ -26,7 +26,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useAuthStore, type Address } from '@/store/auth.store';
+import { type Address } from '@/store/auth.store';
 import {
   IconCheck,
   IconChevronRight,
@@ -41,6 +41,8 @@ import {
   IconTrash,
   IconUser
 } from '@tabler/icons-react';
+import { logoutAction } from '~/src/actions/auth.actions';
+import { useUser } from '~/src/hooks/useUser';
 
 // Mock order data
 const mockOrders = [
@@ -105,16 +107,6 @@ const statusColors: Record<string, string> = {
 
 export function AccountDomain() {
   const router = useRouter();
-  const {
-    user,
-    isAuthenticated,
-    logout,
-    updateProfile,
-    addAddress,
-    updateAddress,
-    removeAddress,
-    setDefaultAddress
-  } = useAuthStore();
 
   const [activeTab, setActiveTab] = useState('overview');
   const [isEditing, setIsEditing] = useState(false);
@@ -127,41 +119,27 @@ export function AccountDomain() {
   const [addressForm, setAddressForm] = useState<Partial<Address>>({});
   const [isAddressDialogOpen, setIsAddressDialogOpen] = useState(false);
   const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
+  const { user } = useUser();
+  console.log(user);
 
-  useEffect(() => {
-    if (user) {
-      setEditForm({
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        phone: user.phone || ''
-      });
-    }
-  }, [user]);
-
-  if (!isAuthenticated || !user) {
+  if (!user) {
     return null;
   }
 
   const handleLogout = () => {
-    logout();
+    logoutAction();
     router.push('/');
   };
 
   const handleSaveProfile = () => {
-    updateProfile({
-      firstName: editForm.firstName,
-      lastName: editForm.lastName,
-      phone: editForm.phone
-    });
     setIsEditing(false);
   };
 
   const handleSaveAddress = () => {
     if (editingAddressId) {
-      updateAddress(editingAddressId, addressForm);
+      // updateAddress(editingAddressId, addressForm);
     } else {
-      addAddress(addressForm as Omit<Address, 'id'>);
+      // addAddress(addressForm as Omit<Address, 'id'>);
     }
     setIsAddressDialogOpen(false);
     setAddressForm({});
@@ -177,8 +155,8 @@ export function AccountDomain() {
   const handleAddNewAddress = () => {
     setAddressForm({
       label: '',
-      firstName: user.firstName,
-      lastName: user.lastName,
+      firstName: user.first_name,
+      lastName: user.last_name,
       street: '',
       apartment: '',
       city: '',
@@ -303,13 +281,13 @@ export function AccountDomain() {
                     <div className='flex items-center gap-6'>
                       <div className='bg-accent/20 flex h-20 w-20 items-center justify-center rounded-full'>
                         <span className='text-accent text-2xl font-semibold'>
-                          {user.firstName[0]}
-                          {user.lastName[0]}
+                          {user.first_name[0]}
+                          {user.last_name[0]}
                         </span>
                       </div>
                       <div>
                         <h3 className='text-lg font-medium'>
-                          {user.firstName} {user.lastName}
+                          {user.first_name} {user.last_name}
                         </h3>
                         <p className='text-muted-foreground'>{user.email}</p>
                         {user.phone && <p className='text-muted-foreground'>{user.phone}</p>}
@@ -325,7 +303,7 @@ export function AccountDomain() {
                     { label: 'Wishlist Items', value: mockWishlist.length, icon: IconHeart },
                     {
                       label: 'Saved Addresses',
-                      value: user.addresses?.length || 0,
+                      value: user?.addresses?.length || 0,
                       icon: IconMapPin
                     }
                   ].map((stat) => {

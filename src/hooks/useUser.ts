@@ -13,5 +13,7 @@ export function useUser() {
     });
   }, []);
 
-  return { user, loading };
+  const isAuthenticated = !!user;
+
+  return { user, loading, isAuthenticated };
 }

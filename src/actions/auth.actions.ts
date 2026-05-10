@@ -1,9 +1,8 @@
-// app/actions/auth.actions.ts
 'use server';
 
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import type { DtoLoginResponse, DtoRegisterResponse } from '@/services/models';
+import type { DtoLoginResponse, DtoRefreshResponse, DtoRegisterResponse } from '@/services/models';
 import { BASE_URL } from '@/lib/api-client';
 import { setAuthCookies, clearAuthCookies } from '@/lib/auth-helpers';
 
@@ -82,4 +81,41 @@ export async function logoutAction() {
 
   await clearAuthCookies();
   redirect('/login');
+}
+
+export async function refreshAccessToken() {
+  const cookieStore = await cookies();
+
+  const refreshToken = cookieStore.get('refresh_token')?.value;
+
+  if (!refreshToken) {
+    return null;
+  }
+
+  const res = await fetch(`${BASE_URL}/auth/refresh`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      refresh_token: refreshToken
+    })
+  });
+
+  if (!res.ok) {
+    return null;
+  }
+
+  const json = (await res.json()) as DtoRefreshResponse;
+
+  const accessToken = json.data?.access_token || '';
+
+  cookieStore.set('access_token', accessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/'
+  });
+
+  return accessToken;
 }

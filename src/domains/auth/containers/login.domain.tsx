@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { IconCheck, IconMail } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useAppForm } from '~/src/components/forms/useAppForm';
 import { loginFormSchema } from '../auth.schema';
 import { toast } from 'sonner';
@@ -13,7 +12,6 @@ import { loginAction } from '@/actions/auth.actions';
 import { LoginSidebar } from '../components/login-sidebar';
 
 export function LoginDomain() {
-  const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
   const form = useAppForm({
@@ -39,7 +37,6 @@ export function LoginDomain() {
           }
         } else {
           toast.success(`Welcome back!`);
-          router.push('/account');
         }
       });
     }

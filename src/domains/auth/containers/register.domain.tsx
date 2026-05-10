@@ -140,6 +140,17 @@ export function RegisterDomain() {
                   />
                 )}
               </form.AppField>
+              {/* Email */}
+              <form.AppField name='phone'>
+                {(field) => (
+                  <field.InputPhone
+                    label='Email address'
+                    placeholder='name@example.com'
+                    startIcon={IconMail}
+                    className='h-12'
+                  />
+                )}
+              </form.AppField>
 
               {/* Password */}
               <form.AppField name='password'>
