@@ -8,8 +8,9 @@ export function SubscribeButton({
   className,
   children,
   label,
+  isPending,
   ...props
-}: ComponentProps<typeof Button> & { label?: string }) {
+}: ComponentProps<typeof Button> & { label?: string; isPending?: boolean }) {
   const form = useFormContext();
 
   return (
@@ -25,7 +26,7 @@ export function SubscribeButton({
           )}
           {...props}
         >
-          {isSubmitting && <IconLoader2 className='mr-2 h-5 w-5 animate-spin' />}
+          {(isSubmitting || isPending) && <IconLoader2 className='mr-2 h-5 w-5 animate-spin' />}
           {children || label}
         </Button>
       )}

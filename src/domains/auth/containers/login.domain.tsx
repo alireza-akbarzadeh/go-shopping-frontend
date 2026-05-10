@@ -1,30 +1,47 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import { IconCheck, IconMail } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAppForm } from '~/src/components/forms/useAppForm';
 import { loginFormSchema } from '../auth.schema';
+import { toast } from 'sonner';
+import { useTransition } from 'react';
+import { loginAction } from '@/actions/auth.actions';
+import { LoginSidebar } from '../components/login-sidebar';
 
 export function LoginDomain() {
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
   const form = useAppForm({
     defaultValues: {
       email: '',
-      password: '',
-      rememberMe: false
+      password: ''
     },
     validators: {
       onChange: loginFormSchema,
       onBlur: loginFormSchema
     },
     onSubmit: async ({ value, formApi }) => {
-      console.log('Login attempt:', value);
-      router.push('/account');
+      startTransition(async () => {
+        const formData = new FormData();
+        formData.append('email', value.email);
+        formData.append('password', value.password);
+
+        const result = await loginAction(formData);
+        if (result && 'error' in result) {
+          toast.error(result.error);
+          if (result.error.includes('Invalid credentials')) {
+            formApi.setFieldMeta('password', (prev) => ({ ...prev, error: 'Invalid credentials' }));
+          }
+        } else {
+          toast.success(`Welcome back!`);
+          router.push('/account');
+        }
+      });
     }
   });
 
@@ -98,18 +115,7 @@ export function LoginDomain() {
                 )}
               </form.AppField>
 
-              {/* Remember Me Checkbox */}
-              <form.AppField name='rememberMe'>
-                {(field) => (
-                  <div className='flex items-center gap-2'>
-                    <field.Checkbox label='Remember me' />
-                    <Label htmlFor={field.name} className='cursor-pointer text-sm font-normal'>
-                      Remember me for
-                    </Label>
-                  </div>
-                )}
-              </form.AppField>
-              <form.Submit label='login' />
+              <form.Submit isPending={isPending} label='login' />
             </form.Root>
           </form.AppForm>
 
@@ -165,38 +171,7 @@ export function LoginDomain() {
       </div>
 
       {/* Right Side - Branding */}
-      <div className='bg-accent/5 relative hidden flex-1 items-center justify-center overflow-hidden p-12 lg:flex'>
-        <div className='from-accent/10 to-accent/5 absolute inset-0 bg-gradient-to-br via-transparent' />
-        <div className='bg-accent/10 absolute top-1/4 left-1/4 h-64 w-64 rounded-full blur-3xl' />
-        <div className='bg-accent/20 absolute right-1/4 bottom-1/4 h-48 w-48 rounded-full blur-3xl' />
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7, delay: 0.2 }}
-          className='relative z-10 max-w-md text-center'
-        >
-          <div className='mb-8'>
-            <span className='text-6xl font-bold tracking-tight'>LUXE</span>
-          </div>
-          <h2 className='mb-4 text-2xl font-semibold'>Premium Shopping Experience</h2>
-          <p className='text-muted-foreground leading-relaxed'>
-            Discover exclusive collections and enjoy personalized recommendations tailored just for
-            you. Sign in to access your wishlist, track orders, and more.
-          </p>
-          <div className='mt-12 grid grid-cols-3 gap-6'>
-            {[
-              { label: 'Secure Checkout', value: '256-bit SSL' },
-              { label: 'Free Returns', value: '30 Days' },
-              { label: 'Support', value: '24/7' }
-            ].map((feature) => (
-              <div key={feature.label} className='text-center'>
-                <p className='text-lg font-semibold'>{feature.value}</p>
-                <p className='text-muted-foreground text-xs'>{feature.label}</p>
-              </div>
-            ))}
-          </div>
-        </motion.div>
-      </div>
+      <LoginSidebar />
     </div>
   );
 }

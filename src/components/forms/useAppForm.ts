@@ -12,6 +12,7 @@ import { ComboboxField } from './combox-box';
 import { MultiSelect } from './multi-select';
 import { DatePicker } from './date-picker';
 import { InputPassword } from './input-password';
+import { InputPhone } from './input-from';
 
 export const { useAppForm } = createFormHook({
   fieldComponents: {
@@ -23,6 +24,7 @@ export const { useAppForm } = createFormHook({
     DatePicker,
     Select: SelectController,
     InputPassword: InputPassword,
+    InputPhone: InputPhone,
     Combobox: ComboboxField
   },
   formComponents: {

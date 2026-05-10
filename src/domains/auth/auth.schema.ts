@@ -2,8 +2,7 @@ import { z } from 'zod';
 
 export const loginFormSchema = z.object({
   email: z.string().email('Invalid email address'),
-  password: z.string().min(1, 'Password is required'),
-  rememberMe: z.boolean()
+  password: z.string().min(1, 'Password is required')
 });
 
 export const registerFormSchema = z
@@ -11,12 +10,18 @@ export const registerFormSchema = z
     firstName: z.string().min(2, 'First name is required'),
     lastName: z.string().min(2, 'Last name is required'),
     email: z.string().email('Invalid email address'),
+    phone: z
+      .string()
+      .refine(
+        (val) => val === '' || /^\+?[1-9]\d{1,14}$/.test(val),
+        'Phone number must be in E.164 format (e.g., +1234567890)'
+      ),
     password: z.string().min(8, 'Password must be at least 8 characters'),
     confirmPassword: z.string(),
     acceptTerms: z.boolean().refine((val) => val, {
       message: 'You must accept terms'
     }),
-    acceptMarketing: z.boolean()
+    acceptMarketing: z.boolean() // ✅ required boolean, default comes from form defaultValues
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Passwords do not match',
