@@ -1,4 +1,4 @@
-'user server';
+'use server';
 
 import { cookies } from 'next/headers';
 import { BASE_URL } from './api-client';

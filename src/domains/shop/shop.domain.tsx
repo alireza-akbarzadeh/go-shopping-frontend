@@ -13,34 +13,38 @@ import {
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Slider } from '@/components/ui/slider';
 import { productCategories, sortOptions } from '@/lib/data';
-import { IconArrowsHorizontal, IconGrid3x3, IconLayoutGrid, IconSearch, IconX } from '@tabler/icons-react';
+import {
+  IconArrowsHorizontal,
+  IconGrid3x3,
+  IconLayoutGrid,
+  IconSearch,
+  IconX
+} from '@tabler/icons-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ProductCard } from './components/prodcut-card';
-import { useShopStore } from './shop.store';
+import { useProductFilters } from './useProductFilters';
 
-export  function ShopDomain() {
- const {
-  selectedCategories,
-  sortBy,
-  priceRange,
-  searchQuery,
-  gridCols,
-  showOnlyNew,
-  showOnlySale,
-
-  setSortBy,
-  setPriceRange,
-  setSearchQuery,
-  setGridCols,
-  setShowOnlyNew,
-  setShowOnlySale,
-
-  handleCategoryToggle,
-  clearFilters,
-
-  filteredProducts,
-  hasActiveFilters
-} = useShopStore();
+export function ShopDomain() {
+  const {
+    selectedCategories,
+    sortBy,
+    priceRange,
+    searchQuery,
+    gridCols,
+    showOnlyNew,
+    showOnlySale,
+    setSortBy,
+    setPriceRange,
+    setSearchQuery,
+    setGridCols,
+    setShowOnlyNew,
+    setShowOnlySale,
+    // Derived
+    filteredProducts,
+    hasActiveFilters,
+    handleCategoryToggle,
+    clearFilters
+  } = useProductFilters();
 
   const FilterContent = () => (
     <div className='space-y-8'>
@@ -112,9 +116,10 @@ export  function ShopDomain() {
     </div>
   );
 
+  console.log(selectedCategories);
+
   return (
     <div className='bg-background min-h-screen'>
-
       <main className='pt-24 pb-24 lg:pt-32'>
         <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
           {/* Page Header */}
@@ -305,7 +310,7 @@ export  function ShopDomain() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className='hidden w-64 flex-shrink-0 lg:block'
+              className='hidden w-64 shrink-0 lg:block'
             >
               <div className='sticky top-32'>
                 <FilterContent />

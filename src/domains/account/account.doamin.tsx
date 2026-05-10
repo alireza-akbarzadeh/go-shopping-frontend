@@ -186,7 +186,7 @@ export function AccountDomain() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className='mb-8'>
           <h1 className='mb-2 text-3xl font-bold'>My Account</h1>
           <p className='text-muted-foreground'>
-            Welcome back, {user.firstName}! Manage your account and preferences.
+            Welcome back, {user.first_name}! Manage your account and preferences.
           </p>
         </motion.div>
 
@@ -281,8 +281,8 @@ export function AccountDomain() {
                     <div className='flex items-center gap-6'>
                       <div className='bg-accent/20 flex h-20 w-20 items-center justify-center rounded-full'>
                         <span className='text-accent text-2xl font-semibold'>
-                          {user.first_name[0]}
-                          {user.last_name[0]}
+                          {user.first_name?.[0]}
+                          {user.last_name?.[0]}
                         </span>
                       </div>
                       <div>
@@ -585,7 +585,7 @@ export function AccountDomain() {
                             <Button
                               variant='ghost'
                               size='sm'
-                              onClick={() => setDefaultAddress(address.id)}
+                              // onClick={() => setDefaultAddress(address.id)}
                             >
                               Set Default
                             </Button>
@@ -611,7 +611,7 @@ export function AccountDomain() {
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                                 <AlertDialogAction
-                                  onClick={() => removeAddress(address.id)}
+                                  // onClick={() => removeAddress(address.id)}
                                   className='bg-red-600 hover:bg-red-700'
                                 >
                                   Delete

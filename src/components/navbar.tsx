@@ -17,8 +17,7 @@ export function Navbar() {
   const [mounted, setMounted] = useState(false);
 
   const itemCount = useCartStore((state) => state.getItemCount());
-  const { user, loading: userLoading, isAuthenticated } = useUser();
-  console.log({ user });
+  const { loading: userLoading, isAuthenticated } = useUser();
 
   useEffect(() => {
     setMounted(true);
