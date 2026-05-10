@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { navLinks } from '@/lib/data';
 import { IconMenu, IconMoon, IconShoppingBag, IconSun, IconUser, IconX } from '@tabler/icons-react';
 import { useCartStore } from '../store/card.store';
-import { useAuthStore } from '../store/auth.store';
+import { useUser } from '@/hooks/useUser'; // 👈 new hook
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -17,7 +17,7 @@ export function Navbar() {
   const [mounted, setMounted] = useState(false);
 
   const itemCount = useCartStore((state) => state.getItemCount());
-  const { isAuthenticated, user } = useAuthStore();
+  const { loading: userLoading, isAuthenticated } = useUser();
 
   useEffect(() => {
     setMounted(true);
@@ -80,7 +80,7 @@ export function Navbar() {
             <Link href={isAuthenticated ? '/account' : '/login'}>
               <Button variant='ghost' size='icon' className='relative hidden rounded-full sm:flex'>
                 <IconUser className='h-5 w-5' />
-                {mounted && isAuthenticated && (
+                {mounted && isAuthenticated && !userLoading && (
                   <span className='bg-accent absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full' />
                 )}
                 <span className='sr-only'>Account</span>

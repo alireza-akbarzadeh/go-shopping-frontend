@@ -2,45 +2,22 @@
 
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { IconCheck, IconMail, IconUser, IconX } from '@tabler/icons-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { z } from 'zod';
-import { useAuthStore } from '@/store/auth.store';
+import { useState, useTransition } from 'react';
+import { toast } from 'sonner';
+import { registerAction } from '~/src/actions/auth.actions';
 import { useAppForm } from '~/src/components/forms/useAppForm';
+import { registerFormSchema } from '../auth.schema';
 import { getPasswordStrength, passwordRequirements } from '../utils.auth';
-import {
-  IconArrowRight,
-  IconCheck,
-  IconLoader2,
-  IconMail,
-  IconUser,
-  IconX
-} from '@tabler/icons-react';
-
-const registerFormSchema = z
-  .object({
-    firstName: z.string().min(2, 'First name is required'),
-    lastName: z.string().min(2, 'Last name is required'),
-    email: z.email('Invalid email address'),
-    phone: z.string().email('Invalid phone number'),
-    password: z.string().min(8, 'Password must be at least 8 characters'),
-    confirmPassword: z.string(),
-    acceptTerms: z.boolean().refine((val) => val, {
-      message: 'You must accept terms'
-    }),
-    acceptMarketing: z.boolean()
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword']
-  });
+import { RegisterSidebar } from '../components/register-sidebar';
 
 export function RegisterDomain() {
   const router = useRouter();
-
-  const { register, isLoading, error, clearError, isAuthenticated } = useAuthStore();
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
 
   const form = useAppForm({
     defaultValues: {
@@ -49,6 +26,7 @@ export function RegisterDomain() {
       email: '',
       phone: '',
       password: '',
+      phone: '',
       confirmPassword: '',
       acceptTerms: false,
       acceptMarketing: false
@@ -57,30 +35,33 @@ export function RegisterDomain() {
       onChange: registerFormSchema,
       onBlur: registerFormSchema
     },
-    onSubmit: async ({ value }) => {
-      const success = await register({
-        email: value.email,
-        password: value.password,
-        first_name: value.firstName,
-        last_name: value.lastName,
-        phone: value.phone
-      });
+    onSubmit: async ({ value, formApi }) => {
+      startTransition(async () => {
+        const formData = new FormData();
+        formData.append('email', value.email);
+        formData.append('password', value.password);
+        formData.append('firstName', value.firstName);
+        formData.append('lastName', value.lastName);
+        if (value.phone) formData.append('phone', value.phone);
+        formData.append('acceptMarketing', String(value.acceptMarketing));
 
-      if (success) {
-        router.push('/account');
-      }
+        const result = await registerAction(formData);
+        if (result && 'error' in result) {
+          setError(result.error);
+          toast.error(result.error);
+          if (result.error.includes('duplicate') || result.error.includes('already exists')) {
+            formApi.setFieldMeta('email', (prev) => ({
+              ...prev,
+              error: 'Email already registered'
+            }));
+          }
+        } else {
+          toast.success('Account created! Redirecting...');
+          router.push('/account');
+        }
+      });
     }
   });
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      router.push('/account');
-    }
-  }, [isAuthenticated, router]);
-
-  useEffect(() => {
-    if (error) clearError();
-  }, [error, clearError]);
 
   const password = form.getFieldValue('password');
   const passwordStrength = getPasswordStrength(password);
@@ -88,55 +69,7 @@ export function RegisterDomain() {
   return (
     <div className='bg-background flex min-h-screen'>
       {/* Left Side */}
-      <div className='bg-accent/5 relative hidden flex-1 items-center justify-center overflow-hidden p-12 lg:flex'>
-        <div className='from-accent/10 to-accent/5 absolute inset-0 bg-gradient-to-br via-transparent' />
-
-        <div className='bg-accent/10 absolute top-1/3 right-1/4 h-72 w-72 rounded-full blur-3xl' />
-        <div className='bg-accent/20 absolute bottom-1/3 left-1/4 h-56 w-56 rounded-full blur-3xl' />
-
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7, delay: 0.2 }}
-          className='relative z-10 max-w-md text-center'
-        >
-          <div className='mb-8'>
-            <span className='text-6xl font-bold tracking-tight'>LUXE</span>
-          </div>
-
-          <h2 className='mb-4 text-2xl font-semibold'>Join Our Community</h2>
-
-          <p className='text-muted-foreground leading-relaxed'>
-            Create an account to unlock exclusive benefits, early access to new collections, and
-            personalized shopping experiences.
-          </p>
-
-          <div className='mt-12 space-y-4 text-left'>
-            {[
-              'Exclusive member-only discounts',
-              'Early access to new arrivals',
-              'Save items to your wishlist',
-              'Faster checkout experience',
-              'Order tracking & history'
-            ].map((benefit, index) => (
-              <motion.div
-                key={benefit}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 + index * 0.1 }}
-                className='flex items-center gap-3'
-              >
-                <div className='bg-accent/20 flex size-6 items-center justify-center rounded-full'>
-                  <IconCheck className='text-accent size-4' />
-                </div>
-
-                <span className='text-sm'>{benefit}</span>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-      </div>
-
+      <RegisterSidebar />
       {/* Right Side */}
       <div className='flex flex-1 items-center justify-center overflow-y-auto p-6 sm:p-12'>
         <motion.div
@@ -208,11 +141,12 @@ export function RegisterDomain() {
                   />
                 )}
               </form.AppField>
+              {/* Email */}
               <form.AppField name='phone'>
                 {(field) => (
-                  <field.TextField
-                    label='phone number'
-                    placeholder='09121223880'
+                  <field.InputPhone
+                    label='Email address'
+                    placeholder='name@example.com'
                     startIcon={IconMail}
                     className='h-12'
                   />
@@ -337,22 +271,7 @@ export function RegisterDomain() {
               </div>
 
               {/* Submit */}
-              <form.Submit
-                disabled={isLoading}
-                className='bg-accent hover:bg-accent/90 text-accent-foreground h-12'
-              >
-                {isLoading ? (
-                  <>
-                    <IconLoader2 className='size-5 animate-spin' />
-                    Creating account...
-                  </>
-                ) : (
-                  <>
-                    Create account
-                    <IconArrowRight className='size-5' />
-                  </>
-                )}
-              </form.Submit>
+              <form.Submit label='Register' isPending={isPending} />
             </form.Root>
           </form.AppForm>
 

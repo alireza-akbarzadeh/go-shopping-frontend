@@ -36,7 +36,7 @@ export class ForbiddenError extends ApiError {
 }
 
 // ---------- Configuration ----------
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1';
+export const BASE_URL = process.env['NEXT_PUBLIC_API_URL'] || 'http://localhost:8080/api/v1';
 
 export const AXIOS_INSTANCE = Axios.create({
   baseURL: BASE_URL,
@@ -82,18 +82,23 @@ AXIOS_INSTANCE.interceptors.response.use(
   }
 );
 
+// ---------- Universal Mutator – Supports both signatures ----------
+
 const customInstance = <T>(
   urlOrConfig: string | AxiosRequestConfig,
   options?: RequestInit
 ): Promise<T> => {
+  // If first argument is a string, treat as (url, options) fetch-style call
   if (typeof urlOrConfig === 'string') {
     const url = urlOrConfig;
     const fetchOptions = options || {};
 
+    // Convert fetch-style options to axios config
     const method = (fetchOptions.method || 'GET').toUpperCase();
     const headers = { ...AXIOS_INSTANCE.defaults.headers.common, ...fetchOptions.headers };
     let data = undefined;
 
+    // If method is POST/PUT/PATCH and there's a body, parse it
     if (fetchOptions.body && (method === 'POST' || method === 'PUT' || method === 'PATCH')) {
       try {
         data = JSON.parse(fetchOptions.body as string);
@@ -105,13 +110,16 @@ const customInstance = <T>(
     const axiosConfig: AxiosRequestConfig = {
       url,
       method,
-      data,
+      // @ts-expect-error - AxiosRequestConfig doesn't allow arbitrary headers, but we want to support them
       headers,
+      data,
+      // Preserve any other relevant fields
       withCredentials: fetchOptions.credentials === 'include'
     };
     return AXIOS_INSTANCE(axiosConfig).then((res) => res.data);
   }
 
+  // Otherwise, treat as normal AxiosRequestConfig
   return AXIOS_INSTANCE(urlOrConfig).then((res) => res.data);
 };
 
