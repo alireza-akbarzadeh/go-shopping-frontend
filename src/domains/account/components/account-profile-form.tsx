@@ -15,7 +15,7 @@ interface AccountProfileFormProps {
 export function AccountProfileForm({ onCancel }: AccountProfileFormProps) {
   const { user } = useUser();
   const [isPending, startTransition] = useTransition();
-  if (!user) return;
+
   const form = useAppForm({
     defaultValues: {
       firstName: user.first_name ?? '',

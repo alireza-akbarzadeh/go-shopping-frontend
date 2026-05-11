@@ -26,7 +26,6 @@ export function RegisterDomain() {
       email: '',
       phone: '',
       password: '',
-      phone: '',
       confirmPassword: '',
       acceptTerms: false,
       acceptMarketing: false

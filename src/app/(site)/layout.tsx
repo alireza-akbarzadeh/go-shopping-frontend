@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from 'react';
-import { Footer } from 'react-day-picker';
 import { Navbar } from '@/components/navbar';
+import { Footer } from '@/components/footer';
 
 type TRootLayout = Readonly<PropsWithChildren>;
 

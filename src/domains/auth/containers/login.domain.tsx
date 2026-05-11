@@ -7,12 +7,13 @@ import Link from 'next/link';
 import { useAppForm } from '~/src/components/forms/useAppForm';
 import { loginFormSchema } from '../auth.schema';
 import { toast } from 'sonner';
-import { useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import { loginAction } from '@/actions/auth.actions';
 import { LoginSidebar } from '../components/login-sidebar';
 
 export function LoginDomain() {
   const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
 
   const form = useAppForm({
     defaultValues: {
@@ -30,6 +31,7 @@ export function LoginDomain() {
         formData.append('password', value.password);
 
         const result = await loginAction(formData);
+        setError(result?.error as string);
         if (result && 'error' in result) {
           toast.error(result.error);
           if (result.error.includes('Invalid credentials')) {

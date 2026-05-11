@@ -34,8 +34,6 @@ export function AccountAddresses() {
   const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  if (!user) return;
-
   const form = useAppForm({
     defaultValues: {
       label: '',

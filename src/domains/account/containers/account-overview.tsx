@@ -23,8 +23,6 @@ export function AccountOverview() {
   const [isEditing, setIsEditing] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  if (!user) return;
-
   const form = useAppForm({
     defaultValues: {
       firstName: '',
@@ -36,10 +34,10 @@ export function AccountOverview() {
       onChange: profileFormSchema,
       onBlur: profileFormSchema
     },
-    onSubmit: async () => {
+    onSubmit: async ({ value }) => {
       startTransition(async () => {
         try {
-          // await updateProfileAction(value);   // your server action here
+          // await updateProfileAction(value);
           toast.success('Profile updated');
           setIsEditing(false);
         } catch (error) {
@@ -50,20 +48,36 @@ export function AccountOverview() {
   });
 
   const handleStartEditing = () => {
+    // safe: user might be null, we use fallbacks
     form.reset({
-      firstName: user.first_name ?? '',
-      lastName: user.last_name ?? '',
-      email: user.email ?? '',
-      phone: user.phone ?? ''
+      firstName: user?.first_name ?? '',
+      lastName: user?.last_name ?? '',
+      email: user?.email ?? '',
+      phone: user?.phone ?? ''
     });
     setIsEditing(true);
   };
 
   const handleCancelEditing = () => {
     setIsEditing(false);
-    form.reset(); // optional: clear form state
+    form.reset();
   };
 
+  // If user is still loading, show a minimal placeholder (no early return)
+  if (!user) {
+    return (
+      <div className='animate-pulse space-y-6'>
+        <div className='bg-card border-border h-32 rounded-2xl border p-6' />
+        <div className='grid grid-cols-3 gap-4'>
+          <div className='bg-card border-border h-24 rounded-xl border p-6' />
+          <div className='bg-card border-border h-24 rounded-xl border p-6' />
+          <div className='bg-card border-border h-24 rounded-xl border p-6' />
+        </div>
+      </div>
+    );
+  }
+
+  // Normal render when user is loaded
   return (
     <div className='space-y-6'>
       {/* Profile Card */}
@@ -104,7 +118,7 @@ export function AccountOverview() {
         )}
       </div>
 
-      {/* Quick Stats – unchanged */}
+      {/* Quick Stats */}
       <div className='grid grid-cols-3 gap-4'>
         {[
           { label: 'Total Orders', value: mockOrders.length, icon: IconPackage },
@@ -129,7 +143,7 @@ export function AccountOverview() {
         })}
       </div>
 
-      {/* Recent Orders – unchanged */}
+      {/* Recent Orders */}
       <div className='bg-card border-border rounded-2xl border p-6'>
         <div className='mb-4 flex items-center justify-between'>
           <h2 className='text-xl font-semibold'>Recent Orders</h2>
