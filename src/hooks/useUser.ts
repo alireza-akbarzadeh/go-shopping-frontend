@@ -1,3 +1,4 @@
+'use client';
 import { useEffect, useState } from 'react';
 import type { UserPayload } from '@/lib/auth-server';
 import { getClientUser } from '../actions/users.actions';

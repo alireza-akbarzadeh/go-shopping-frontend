@@ -1,4 +1,4 @@
-// hooks/useDashboardShortcuts.ts
+'use client';
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDashboardStore } from './admin.store';

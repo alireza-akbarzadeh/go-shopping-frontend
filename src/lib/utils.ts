@@ -303,3 +303,20 @@ export const getCurrentUrl = () => {
   if (typeof window === 'undefined') return '';
   return window.location.href;
 };
+
+export function getCallbackeUrl(callbackUrl?: string | null): string {
+  if (!callbackUrl) return '/account';
+
+  try {
+    const url = new URL(
+      callbackUrl,
+      `http://${process.env['NEXT_PUBLIC_APP_DOMAIN'] || 'localhost'}`
+    );
+    const allowed =
+      url.origin === (process.env['NEXT_PUBLIC_APP_ORIGIN'] || 'http://localhost:4000');
+    if (allowed) return url.pathname + url.search;
+  } catch {
+    if (callbackUrl.startsWith('/')) return callbackUrl;
+  }
+  return '/account';
+}

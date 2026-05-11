@@ -346,7 +346,7 @@ export const dashboard_SIDEBAR: SidebarGroup[] = [
         label: 'Users',
         icon: 'Users',
         children: [
-          { label: 'Staff Directory', href: '/dashboard/users' },
+          { label: 'Users', href: '/dashboard/users' },
           { label: 'Access Control', href: '/dashboard/access-control' },
           { label: 'Roles & Permissions', href: '/dashboard/roles' },
           { label: 'Audit Logs', href: '/dashboard/audit-logs' }

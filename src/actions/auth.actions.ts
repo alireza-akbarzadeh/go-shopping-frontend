@@ -1,10 +1,22 @@
 'use server';
 
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import type { DtoLoginResponse, DtoRefreshResponse, DtoRegisterResponse } from '@/services/models';
 import { BASE_URL } from '@/lib/api-client';
 import { setAuthCookies, clearAuthCookies } from '@/lib/auth-helpers';
+
+async function getCallbackUrlFromReferer(): Promise<string | null> {
+  const headersList = await headers();
+  const referer = headersList.get('referer');
+  if (!referer) return null;
+  try {
+    const url = new URL(referer);
+    return url.searchParams.get('callbackUrl');
+  } catch {
+    return null;
+  }
+}
 
 async function handleAuthResponse<
   T extends {
@@ -21,7 +33,9 @@ async function handleAuthResponse<
     return { error: 'Invalid response from authentication server' };
   }
   await setAuthCookies(access_token, refresh_token);
-  redirect('/account');
+  const callbackUrl = (await getCallbackUrlFromReferer()) || '/account';
+
+  redirect(callbackUrl);
 }
 
 export async function loginAction(formData: FormData) {

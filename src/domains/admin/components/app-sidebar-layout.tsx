@@ -1,3 +1,4 @@
+'use client';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { TooltipProvider } from '@/components/ui/tooltip';
 
@@ -46,7 +47,7 @@ export function AppSidebarLayout({ children }: AppSidebarLayoutProps) {
           <AppHeader pathname={pathname} />
 
           <main className='bg-muted/20 flex-1 overflow-y-auto scroll-smooth'>
-            <div className='container mx-auto min-h-full max-w-[1600px] p-4 md:p-8'>{children}</div>
+            <div className='container mx-auto min-h-full max-w-400 p-4 md:p-8'>{children}</div>
           </main>
         </div>
 
