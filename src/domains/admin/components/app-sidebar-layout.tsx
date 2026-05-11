@@ -6,7 +6,7 @@ import { useDashboardStore } from '../admin.store';
 import { usePathname } from 'next/navigation';
 import { AdminSidebar } from './admin-sidebar';
 import { AppHeader } from './app-header';
-import { SearchSide } from './search-side';
+import { SearchSide } from './search-dashboard';
 import { dashboard_SIDEBAR } from '../data';
 
 interface AppSidebarLayoutProps {
