@@ -2,10 +2,9 @@
 
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { products } from '@/lib/data';
 import Image from 'next/image';
 import { IconHeart, IconShoppingCart, IconStar } from '@tabler/icons-react';
-import { useGetProducts } from '~/src/services/apis/products';
-import type { GetProductsParams, ModelsProduct } from '~/src/services/models';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -27,42 +26,6 @@ const itemVariants = {
 };
 
 export function FeaturedProducts() {
-  const params: GetProductsParams = {
-    limit: 12,
-    offset: 1,
-    status: 'active'
-  };
-
-  const { data, isLoading, error } = useGetProducts(params);
-
-  if (isLoading) {
-    return (
-      <section className='py-24 lg:py-32'>
-        <div className='mx-auto max-w-7xl px-4 text-center'>Loading featured products...</div>
-      </section>
-    );
-  }
-
-  if (error || !data?.data?.products) {
-    return (
-      <section className='py-24 lg:py-32'>
-        <div className='mx-auto max-w-7xl px-4 text-center text-red-500'>
-          Failed to load products. Please try again later.
-        </div>
-      </section>
-    );
-  }
-
-  // ✅ Extract products from the correct nested path
-  const products: ModelsProduct[] = data?.data?.products;
-
-  if (products.length === 0) {
-    return (
-      <section className='py-24 lg:py-32'>
-        <div className='mx-auto max-w-7xl px-4 text-center'>No products found.</div>
-      </section>
-    );
-  }
   return (
     <section id='products' className='py-24 lg:py-32'>
       <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
@@ -100,18 +63,19 @@ export function FeaturedProducts() {
                 {/* Product Image */}
                 <div className='bg-secondary relative aspect-square overflow-hidden'>
                   <Image
-                    src={product?.images?.[0] as string}
+                    src={product.image}
                     alt={product.name}
                     fill
                     className='object-cover transition-transform duration-700 group-hover:scale-110'
                   />
 
                   {/* Badges */}
-                  {isNewProduct(product.created_at) && (
+                  {product.isNew && (
                     <span className='bg-accent text-accent-foreground absolute top-3 left-3 rounded-full px-3 py-1 text-xs font-medium'>
                       New
                     </span>
                   )}
+
                   {/* Wishlist Button */}
                   <motion.button
                     initial={{ opacity: 0, scale: 0.8 }}
@@ -124,7 +88,7 @@ export function FeaturedProducts() {
                   {/* Quick Add Button */}
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
-                    className='from-background/90 absolute right-0 bottom-0 left-0 bg-linear-to-t to-transparent p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100'
+                    className='from-background/90 absolute right-0 bottom-0 left-0 bg-gradient-to-t to-transparent p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100'
                   >
                     <Button size='sm' className='w-full gap-2 rounded-full'>
                       <IconShoppingCart className='h-4 w-4' />
@@ -136,7 +100,7 @@ export function FeaturedProducts() {
                 {/* Product Info */}
                 <div className='p-4'>
                   <span className='text-muted-foreground text-xs tracking-wider uppercase'>
-                    {product.category?.name}
+                    {product.category}
                   </span>
                   <h3 className='mt-1 line-clamp-1 text-sm font-medium'>{product.name}</h3>
 
@@ -144,18 +108,16 @@ export function FeaturedProducts() {
                   <div className='mt-2 flex items-center gap-1'>
                     <IconStar className='fill-accent text-accent h-3 w-3' />
                     <span className='text-muted-foreground text-xs'>
-                      {/* FIXME: add this model to product */}
-                      {/* {product.rating} ({product.reviews}) */}
-                      {4} ({60})
+                      {product.rating} ({product.reviews})
                     </span>
                   </div>
 
                   {/* Price */}
                   <div className='mt-2 flex items-center gap-2'>
-                    <span className='font-semibold'>${product.price.toFixed(2)}</span>
-                    {product.compare_at_price && product.compare_at_price > product.price && (
+                    <span className='font-semibold'>${product.price}</span>
+                    {product.originalPrice && (
                       <span className='text-muted-foreground text-sm line-through'>
-                        ${product.compare_at_price.toFixed(2)}
+                        ${product.originalPrice}
                       </span>
                     )}
                   </div>
@@ -180,12 +142,4 @@ export function FeaturedProducts() {
       </div>
     </section>
   );
-}
-
-function isNewProduct(createdAt?: string): boolean {
-  if (!createdAt) return false;
-  const created = new Date(createdAt);
-  const now = new Date();
-  const diffDays = (now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24);
-  return diffDays <= 30;
 }
