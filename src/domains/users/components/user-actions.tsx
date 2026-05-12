@@ -20,7 +20,7 @@ export function UserActions({ user }: UserActionsProps) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align='end' className='border-border/50 w-72 rounded-2xl p-2 shadow-xl'>
-        <ActionHeader userId={user.id} />
+        <ActionHeader userId={user.id as number} />
 
         {/* <QuickLinks user={user} />
 
