@@ -31,8 +31,10 @@ import {
   IconX
 } from '@tabler/icons-react';
 import { useGetUsers } from '~/src/services/apis/user';
-import type { GetUsers200, GetUsers200DataUsersItem } from '~/src/services/models';
+import type { GetUsers200DataUsersItem } from '~/src/services/models';
 import { useRouter } from 'next/navigation';
+import { userColumns } from './userColumns';
+import { AdvancedFilterContent } from '~/src/components/table/advanced-filter-content';
 
 export function UserManagementTable() {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -111,11 +113,11 @@ export function UserManagementTable() {
     { label: 'Flagged', icon: IconAlertTriangle, color: 'text-orange-500' }
   ];
 
-  const handleDelete = (rows: Row<GetUsers200DataUsersItem[]>[]) => {
+  const handleDelete = (rows: Row<GetUsers200DataUsersItem>[]) => {
     toast.error(`Suspending ${rows.length} users`);
   };
 
-  const handleDownload = (rows: Row<GetUsers200DataUsersItem[]>) => {
+  const handleDownload = (rows: Row<GetUsers200DataUsersItem>[]) => {
     downloadCSV(rows, 'users-export');
     toast.success('Download Started');
   };
