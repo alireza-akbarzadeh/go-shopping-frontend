@@ -1,8 +1,6 @@
 // lib/auth-helpers.ts
 import { cookies } from 'next/headers';
-import { authConfig } from './config';
-import { BASE_URL } from './api-client';
-import type { DtoRefreshResponse } from '../services/models';
+import { APP_CONFIG } from './config';
 
 export async function setAuthCookies(
   accessToken: string,
@@ -11,8 +9,8 @@ export async function setAuthCookies(
 ) {
   const cookieStore = await cookies();
   const accessMaxAge = rememberMe
-    ? authConfig.accessToken.rememberMeMaxAge
-    : authConfig.accessToken.defaultMaxAge;
+    ? APP_CONFIG.accessToken.rememberMeMaxAge
+    : APP_CONFIG.accessToken.defaultMaxAge;
 
   cookieStore.set('access_token', accessToken, {
     httpOnly: true,
@@ -29,7 +27,7 @@ export async function setAuthCookies(
     sameSite: 'lax',
     path: '/',
     domain: 'localhost',
-    maxAge: authConfig.refreshToken.maxAge
+    maxAge: APP_CONFIG.refreshToken.maxAge
   });
 }
 

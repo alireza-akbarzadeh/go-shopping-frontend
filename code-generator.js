@@ -58,7 +58,7 @@ const fsPromises = fs.promises;
 const codeGenerator = async (baseURL, destination) => {
   const orvalConfigPath = path.resolve(__dirname, `${destination}/services/orval.config.js`);
   const generatedServicesPath = path.resolve(__dirname, `${destination}/services`);
-  const customInstancePath = path.resolve(__dirname, `${destination}/lib/api-client.ts`);
+  const customInstancePath = path.resolve(__dirname, `${destination}/lib/api/api-client.ts`);
 
   try {
     removeDir(generatedServicesPath);

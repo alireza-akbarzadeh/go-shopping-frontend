@@ -1,7 +1,7 @@
 // lib/auth-server.ts
 import { jwtDecode } from 'jwt-decode';
 import { cookies } from 'next/headers';
-import type { DtoUserResponse } from '../services/models';
+import type { DtoUserResponse } from '../services/-auth-login-post.schemas';
 
 export interface UserPayload extends DtoUserResponse {
   exp: number;

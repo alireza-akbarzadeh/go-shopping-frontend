@@ -2,16 +2,28 @@
 import Axios, {
   AxiosError,
   HttpStatusCode,
-  type AxiosInterceptorOptions,
+  type AxiosRequestConfig,
+  type AxiosResponse,
   type InternalAxiosRequestConfig
 } from 'axios';
+
 import { toast } from 'sonner';
+import { APP_CONFIG } from '../config';
+import { handleApiError } from './handle-api-error';
+import type { ApiClientOptions, ApiErrorResponse } from './type';
+import { isRequestCancelled } from './api-utils';
+import { logger } from './logger';
 
 export const BASE_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:8080/api/v1';
 
 export const AXIOS_INSTANCE = Axios.create({
   baseURL: BASE_URL,
-  withCredentials: true
+  withCredentials: true,
+  timeout: APP_CONFIG.API_DEFAULT_TIMEOUT,
+  headers: {
+    'Content-Type': 'application/json',
+    Accept: 'application/json'
+  }
 });
 
 // ---------- Refresh token queue (unchanged) ----------
@@ -104,11 +116,49 @@ AXIOS_INSTANCE.interceptors.response.use(
   }
 );
 
-// ✅ EXPORT A PLAIN ASYNC FUNCTION (no hooks, no currying)
-export async function customInstance<T>(url: string, options: any): Promise<T> {
-  const response = await AXIOS_INSTANCE({
-    url,
-    ...options
-  });
-  return response.data;
-}
+/**
+ * Enhanced API client with error handling and toast notifications
+ * @param config - Axios request configuration
+ * @param options - Additional options for the API client
+ * @returns Promise resolving to the API response data
+ */
+export const customInstance = async <T>(
+  config: AxiosRequestConfig,
+  options?: ApiClientOptions
+): Promise<T> => {
+  const apiOptions: ApiClientOptions = options || {};
+
+  try {
+    const response: AxiosResponse = await AXIOS_INSTANCE({
+      ...config,
+      ...apiOptions,
+      cancelToken: apiOptions.cancelToken?.token
+    });
+
+    // Log response if requested
+    if (apiOptions.logResponse) {
+      logger.info(`API Response [${config.url}]:`, response.data);
+    }
+
+    return response.data;
+  } catch (error) {
+    const axiosError = error as AxiosError<ApiErrorResponse>;
+
+    // Don't handle cancelled requests
+    if (isRequestCancelled(axiosError)) {
+      throw axiosError;
+    }
+
+    if (apiOptions.customErrorHandler) {
+      apiOptions.customErrorHandler(axiosError);
+    } else {
+      handleApiError(axiosError, config, apiOptions);
+    }
+
+    if (axiosError.response && axiosError.response.data) {
+      return axiosError.response.data as unknown as T;
+    }
+    console.warn('Received error response but no data:', axiosError.response);
+    throw axiosError;
+  }
+};
