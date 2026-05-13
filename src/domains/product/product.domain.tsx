@@ -23,8 +23,8 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { toast } from 'sonner';
 import { useCart } from '~/src/hooks/useCartController';
-import { useGetProductsId } from '~/src/services/endpoints/products';
 import RelatedProduct from './related-product';
+import { useGetProductsId } from '~/src/services/-products-{id}-get';
 
 const colors = [
   { name: 'Charcoal', value: '#333333' },
@@ -75,7 +75,7 @@ export default function ProductPage({ productId }: { productId: string }) {
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [wishlisted, setWishlisted] = useState(false);
-  const product = data?.data?.product;
+  const product = data?.data?.data?.product;
 
   console.log(data, 'product');
 

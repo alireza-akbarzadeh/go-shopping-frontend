@@ -6,10 +6,10 @@ export const BASE_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:
 
 export const AXIOS_INSTANCE = Axios.create({
   baseURL: BASE_URL,
-  withCredentials: true // sends HttpOnly cookies automatically
+  withCredentials: true
 });
 
-// ---------- Refresh token queue ----------
+// ---------- Refresh token queue (unchanged) ----------
 let isRefreshing = false;
 let failedQueue: Array<{
   resolve: (value: unknown) => void;
@@ -22,7 +22,6 @@ const processQueue = (error: Error | null, token: string | null = null) => {
     if (error) {
       reject(error);
     } else if (token) {
-      // Attach token to the original request header (optional, cookie may suffice)
       config.headers.Authorization = `Bearer ${token}`;
       resolve(AXIOS_INSTANCE(config));
     }
@@ -30,7 +29,7 @@ const processQueue = (error: Error | null, token: string | null = null) => {
   failedQueue = [];
 };
 
-// ---------- Response interceptor (refresh + error toasts) ----------
+// ---------- Response interceptor (unchanged) ----------
 AXIOS_INSTANCE.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
@@ -38,7 +37,6 @@ AXIOS_INSTANCE.interceptors.response.use(
       _retry?: boolean;
     };
 
-    // Helper to show generic error toast (non‑401 cases)
     const showErrorToast = () => {
       let errorMessage = 'An unexpected error occurred';
       if (error.response?.data) {
@@ -52,7 +50,6 @@ AXIOS_INSTANCE.interceptors.response.use(
       toast.error(errorMessage);
     };
 
-    // If it's not a 401 or already retried → show error and reject
     if (error.response?.status !== HttpStatusCode.Unauthorized || originalRequest._retry) {
       if (error.response?.status === HttpStatusCode.Unauthorized) {
         toast.error('Authentication failed. Please log in again.');
@@ -64,10 +61,8 @@ AXIOS_INSTANCE.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // Mark as retried to avoid infinite loops
     originalRequest._retry = true;
 
-    // If a refresh is already in progress, queue this request
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
         failedQueue.push({ resolve, reject, config: originalRequest });
@@ -77,31 +72,23 @@ AXIOS_INSTANCE.interceptors.response.use(
     isRefreshing = true;
 
     try {
-      // Call our internal refresh endpoint (which uses the server action)
       const refreshResponse = await Axios.post(
         '/api/auth/refresh',
         {},
         {
-          baseURL: '', // relative to the same origin
+          baseURL: '',
           withCredentials: true
         }
       );
-
       const newToken = refreshResponse.data.access_token;
-
-      // Process all queued requests with the new token
       processQueue(null, newToken);
-
-      // Retry the original request
       if (newToken) {
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
       }
       return AXIOS_INSTANCE(originalRequest);
     } catch (refreshError) {
-      // Refresh failed – force logout
       processQueue(refreshError as Error, null);
       toast.error('Session expired. Please log in again.');
-      // Optionally redirect to login page
       if (typeof window !== 'undefined') {
         window.location.href = '/login';
       }
@@ -112,11 +99,24 @@ AXIOS_INSTANCE.interceptors.response.use(
   }
 );
 
-export const customInstance = <T>(): ((config: InternalAxiosRequestConfig) => Promise<T>) => {
-  return (config: InternalAxiosRequestConfig) => {
-    const promise = AXIOS_INSTANCE(config).then(({ data }) => data);
-    return promise;
-  };
-};
-
-export default customInstance;
+// ✅ EXPORT A PLAIN ASYNC FUNCTION (no hooks, no currying)
+export async function customInstance<T>(
+  url: string,
+  options?: {
+    method?: string;
+    headers?: Record<string, string>;
+    params?: Record<string, any>;
+    data?: any;
+    signal?: AbortSignal;
+  }
+): Promise<T> {
+  const response = await AXIOS_INSTANCE({
+    url,
+    method: options?.method || 'GET',
+    headers: options?.headers,
+    params: options?.params,
+    data: options?.data,
+    signal: options?.signal
+  });
+  return response.data;
+}
