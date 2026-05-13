@@ -5,6 +5,7 @@ export default defineConfig({
     output: {
       target: './src/services/endpoints',
       schemas: './src/services/models',
+      mode: 'tags',
       client: 'react-query',
       httpClient: 'axios',
       formatter: 'prettier',

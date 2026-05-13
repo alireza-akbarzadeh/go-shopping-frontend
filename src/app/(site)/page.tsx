@@ -4,7 +4,7 @@ import { getQueryClient } from '@/lib/query-clinet';
 import { HomeDomains } from '@/domains/home/home.domain';
 import type { GetProductsParams } from '@/services/models';
 import type { Metadata } from 'next';
-import { useGetProductsQueryOptions } from '~/src/services/endpoints/shoppingPlatformAPI';
+import { useGetProductsQueryOptions } from '@/services/endpoints/products';
 
 export const metadata: Metadata = {
   title: 'LUXE | Premium Fashion & Lifestyle Ecommerce',

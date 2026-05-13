@@ -1,6 +1,8 @@
 // lib/auth-helpers.ts
 import { cookies } from 'next/headers';
 import { authConfig } from './config';
+import { BASE_URL } from './api-client';
+import type { DtoRefreshResponse } from '../services/models';
 
 export async function setAuthCookies(
   accessToken: string,

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { IconHeart, IconShoppingCart, IconStar } from '@tabler/icons-react';
 import type { GetProductsParams } from '~/src/services/models';
-import { useGetProducts } from '~/src/services/endpoints/shoppingPlatformAPI';
+import { useGetProducts } from '@/services/endpoints/products';
 
 const containerVariants = {
   hidden: { opacity: 0 },
