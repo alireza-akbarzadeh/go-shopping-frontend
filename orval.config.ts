@@ -1,20 +1,22 @@
 import { defineConfig } from 'orval';
 
 export default defineConfig({
-  api: {
-    input: {
-      target: './openapi3.json'
-    },
+  petstore: {
     output: {
-      mode: 'tags',
-      target: './src/services/apis',
+      target: './src/services/endpoints',
       schemas: './src/services/models',
       client: 'react-query',
+      httpClient: 'axios',
+      formatter: 'prettier',
       override: {
         mutator: {
-          path: './src/lib/api-client.ts'
+          path: './src/lib/api-client.ts',
+          name: 'useCustomInstance'
         }
       }
+    },
+    input: {
+      target: './openapi3.json'
     }
   }
 });

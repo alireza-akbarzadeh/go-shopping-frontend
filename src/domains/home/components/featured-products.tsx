@@ -4,8 +4,8 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { IconHeart, IconShoppingCart, IconStar } from '@tabler/icons-react';
-import { useGetProducts } from '~/src/services/apis/products';
-import type { GetProductsParams, ModelsProduct } from '~/src/services/models';
+import type { GetProductsParams } from '~/src/services/models';
+import { useGetProducts } from '~/src/services/endpoints/shoppingPlatformAPI';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -28,7 +28,7 @@ const itemVariants = {
 
 export function FeaturedProducts() {
   const params: GetProductsParams = {
-    limit: 12,
+    limit: 8,
     offset: 1,
     status: 'active'
   };
@@ -53,8 +53,7 @@ export function FeaturedProducts() {
     );
   }
 
-  // ✅ Extract products from the correct nested path
-  const products: ModelsProduct[] = data?.data?.products;
+  const products = data?.data?.products || [];
 
   if (products.length === 0) {
     return (
