@@ -1,316 +1,229 @@
-export const products = [
-  {
-    id: 1,
-    name: "Minimal Leather Bag",
-    price: 189,
-    originalPrice: 249,
-    rating: 4.9,
-    reviews: 128,
-    image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600&h=600&fit=crop",
-    category: "Accessories",
-    isNew: true,
-    description: "Handcrafted from premium Italian leather, this minimalist bag combines elegance with functionality.",
-  },
-  {
-    id: 2,
-    name: "Premium Watch Collection",
-    price: 299,
-    originalPrice: 399,
-    rating: 4.8,
-    reviews: 256,
-    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=600&fit=crop",
-    category: "Watches",
-    isNew: false,
-    description: "Swiss-engineered precision meets contemporary design in this stunning timepiece.",
-  },
-  {
-    id: 3,
-    name: "Designer Sunglasses",
-    price: 159,
-    originalPrice: 199,
-    rating: 4.7,
-    reviews: 89,
-    image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=600&h=600&fit=crop",
-    category: "Eyewear",
-    isNew: true,
-    description: "UV-protective lenses paired with a lightweight titanium frame for all-day comfort.",
-  },
-  {
-    id: 4,
-    name: "Wireless Headphones",
-    price: 249,
-    originalPrice: 329,
-    rating: 4.9,
-    reviews: 412,
-    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop",
-    category: "Electronics",
-    isNew: false,
-    description: "Immersive sound quality with active noise cancellation and 40-hour battery life.",
-  },
-  {
-    id: 5,
-    name: "Ceramic Vase Set",
-    price: 89,
-    originalPrice: 119,
-    rating: 4.6,
-    reviews: 67,
-    image: "https://images.unsplash.com/photo-1578500494198-246f612d3b3d?w=600&h=600&fit=crop",
-    category: "Home",
-    isNew: true,
-    description: "Hand-thrown ceramic vases that bring organic beauty to any living space.",
-  },
-  {
-    id: 6,
-    name: "Artisan Coffee Maker",
-    price: 199,
-    originalPrice: 259,
-    rating: 4.8,
-    reviews: 203,
-    image: "https://images.unsplash.com/photo-1517668808822-9ebb02f2a0e6?w=600&h=600&fit=crop",
-    category: "Kitchen",
-    isNew: false,
-    description: "Precision brewing technology for the perfect cup every morning.",
-  },
-  {
-    id: 7,
-    name: "Minimalist Desk Lamp",
-    price: 129,
-    originalPrice: 169,
-    rating: 4.7,
-    reviews: 156,
-    image: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=600&h=600&fit=crop",
-    category: "Lighting",
-    isNew: true,
-    description: "Adjustable LED lighting with touch-sensitive controls and wireless charging base.",
-  },
-  {
-    id: 8,
-    name: "Leather Wallet",
-    price: 79,
-    originalPrice: 99,
-    rating: 4.9,
-    reviews: 324,
-    image: "https://images.unsplash.com/photo-1627123424574-724758594e93?w=600&h=600&fit=crop",
-    category: "Accessories",
-    isNew: false,
-    description: "RFID-blocking technology meets timeless design in full-grain leather.",
-  },
-  {
-    id: 9,
-    name: "Smart Speaker",
-    price: 179,
-    originalPrice: 229,
-    rating: 4.7,
-    reviews: 189,
-    image: "https://images.unsplash.com/photo-1543512214-318c7553f230?w=600&h=600&fit=crop",
-    category: "Electronics",
-    isNew: true,
-    description: "Room-filling sound with built-in voice assistant and multi-room connectivity.",
-  },
-  {
-    id: 10,
-    name: "Silk Scarf",
-    price: 119,
-    originalPrice: 149,
-    rating: 4.8,
-    reviews: 92,
-    image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=600&h=600&fit=crop",
-    category: "Accessories",
-    isNew: false,
-    description: "100% mulberry silk with hand-rolled edges and exclusive print designs.",
-  },
-  {
-    id: 11,
-    name: "Mechanical Keyboard",
-    price: 169,
-    originalPrice: 219,
-    rating: 4.9,
-    reviews: 287,
-    image: "https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=600&h=600&fit=crop",
-    category: "Electronics",
-    isNew: true,
-    description: "Premium switches with customizable RGB backlighting and aircraft-grade aluminum frame.",
-  },
-  {
-    id: 12,
-    name: "Marble Bookends",
-    price: 69,
-    originalPrice: 89,
-    rating: 4.6,
-    reviews: 54,
-    image: "https://images.unsplash.com/photo-1544457070-4cd773b4d71e?w=600&h=600&fit=crop",
-    category: "Home",
-    isNew: false,
-    description: "Hand-polished Carrara marble with felt-lined bases to protect surfaces.",
-  },
-  {
-    id: 13,
-    name: "Canvas Tote",
-    price: 59,
-    originalPrice: 79,
-    rating: 4.7,
-    reviews: 178,
-    image: "https://images.unsplash.com/photo-1544816155-12df9643f363?w=600&h=600&fit=crop",
-    category: "Accessories",
-    isNew: false,
-    description: "Organic cotton canvas with reinforced handles and interior pockets.",
-  },
-  {
-    id: 14,
-    name: "Copper Pendant Light",
-    price: 219,
-    originalPrice: 279,
-    rating: 4.8,
-    reviews: 76,
-    image: "https://images.unsplash.com/photo-1524484485831-a92ffc0de03f?w=600&h=600&fit=crop",
-    category: "Lighting",
-    isNew: true,
-    description: "Hand-spun copper shade with adjustable cord length and warm Edison bulb.",
-  },
-  {
-    id: 15,
-    name: "Chronograph Watch",
-    price: 449,
-    originalPrice: 549,
-    rating: 4.9,
-    reviews: 143,
-    image: "https://images.unsplash.com/photo-1539874754764-5a96559165b0?w=600&h=600&fit=crop",
-    category: "Watches",
-    isNew: false,
-    description: "Japanese quartz movement with sapphire crystal and water resistance to 100m.",
-  },
-  {
-    id: 16,
-    name: "Pour Over Set",
-    price: 89,
-    originalPrice: 109,
-    rating: 4.7,
-    reviews: 234,
-    image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&h=600&fit=crop",
-    category: "Kitchen",
-    isNew: false,
-    description: "Borosilicate glass carafe with stainless steel dripper and reusable filter.",
-  },
-];
-
 export const categories = [
   {
     id: 1,
-    name: "Accessories",
-    slug: "accessories",
-    description: "Elevate your style",
+    name: 'Accessories',
+    slug: 'accessories',
+    description: 'Elevate your style',
     productCount: 48,
-    image: "https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=800&h=600&fit=crop",
+    image: 'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=800&h=600&fit=crop'
   },
   {
     id: 2,
-    name: "Home & Living",
-    slug: "home",
-    description: "Design your space",
+    name: 'Home & Living',
+    slug: 'home',
+    description: 'Design your space',
     productCount: 36,
-    image: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=800&h=600&fit=crop",
+    image: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=800&h=600&fit=crop'
   },
   {
     id: 3,
-    name: "Electronics",
-    slug: "electronics",
-    description: "Premium tech essentials",
+    name: 'Electronics',
+    slug: 'electronics',
+    description: 'Premium tech essentials',
     productCount: 24,
-    image: "https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=800&h=600&fit=crop",
+    image: 'https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=800&h=600&fit=crop'
   },
   {
     id: 4,
-    name: "Lifestyle",
-    slug: "lifestyle",
-    description: "Curated for you",
+    name: 'Lifestyle',
+    slug: 'lifestyle',
+    description: 'Curated for you',
     productCount: 52,
-    image: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&h=600&fit=crop",
-  },
+    image: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&h=600&fit=crop'
+  }
 ];
 
+export const products: Product[] = [
+  {
+    id: 1,
+    name: 'Aurora Cashmere Overcoat',
+    price: 489,
+    originalPrice: 720,
+    rating: 4.8,
+    reviews: 312,
+    image:
+      'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=800&q=80',
+    category: 'Outerwear',
+    isNew: true,
+    description:
+      'An impossibly soft cashmere blend overcoat tailored in Italy. A modern silhouette with a relaxed shoulder and clean drape — the kind of piece that defines a wardrobe.'
+  },
+  {
+    id: 2,
+    name: 'Monolith Leather Tote',
+    price: 320,
+    originalPrice: 420,
+    rating: 4.9,
+    reviews: 521,
+    image:
+      'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=800&q=80',
+    category: 'Bags',
+    description:
+      'Vegetable-tanned full-grain leather, hand-stitched edges, and a structured silhouette that softens beautifully with use.'
+  },
+  {
+    id: 3,
+    name: 'Equinox Minimalist Watch',
+    price: 245,
+    rating: 4.7,
+    reviews: 189,
+    image:
+      'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80',
+    category: 'Accessories',
+    isNew: true,
+    description:
+      'Brushed stainless steel case, sapphire crystal, and a Japanese quartz movement. Designed to disappear on the wrist.'
+  },
+  {
+    id: 4,
+    name: 'Atelier Loafer — Cognac',
+    price: 295,
+    originalPrice: 380,
+    rating: 4.6,
+    reviews: 142,
+    image:
+      'https://images.unsplash.com/photo-1533867617858-e7b97e060509?auto=format&fit=crop&w=800&q=80',
+    category: 'Footwear',
+    description:
+      'Hand-lasted in Portugal from supple Italian calfskin. The silhouette is timeless, the comfort is immediate.'
+  },
+  {
+    id: 5,
+    name: 'Noir Wool Knit Sweater',
+    price: 180,
+    rating: 4.5,
+    reviews: 86,
+    image:
+      'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?auto=format&fit=crop&w=800&q=80',
+    category: 'Knitwear',
+    description:
+      'A heavyweight merino knit with a relaxed fit and ribbed details. Built for cold mornings and quiet nights.'
+  },
+  {
+    id: 6,
+    name: 'Linen Tailored Trousers',
+    price: 165,
+    originalPrice: 220,
+    rating: 4.4,
+    reviews: 73,
+    image:
+      'https://images.unsplash.com/photo-1473966968600-fa801b869a1a?auto=format&fit=crop&w=800&q=80',
+    category: 'Trousers',
+    description:
+      'European linen, half-elastic waistband, and a softly tapered leg. Effortless across seasons.'
+  },
+  {
+    id: 7,
+    name: 'Slate Sunglasses 02',
+    price: 145,
+    rating: 4.7,
+    reviews: 211,
+    image:
+      'https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=800&q=80',
+    category: 'Accessories',
+    isNew: true,
+    description:
+      'Hand-polished acetate frames with polarized Zeiss lenses. A confident, modern silhouette.'
+  },
+  {
+    id: 8,
+    name: 'Heritage Denim — Indigo',
+    price: 210,
+    rating: 4.8,
+    reviews: 402,
+    image:
+      'https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&w=800&q=80',
+    category: 'Denim',
+    description:
+      '13.5oz Japanese selvedge denim with a high rise and straight leg. Made to age with character.'
+  }
+];
 export const productCategories = [
-  "All",
-  "Accessories",
-  "Watches",
-  "Eyewear",
-  "Electronics",
-  "Home",
-  "Kitchen",
-  "Lighting",
+  'All',
+  'Accessories',
+  'Watches',
+  'Eyewear',
+  'Electronics',
+  'Home',
+  'Kitchen',
+  'Lighting'
 ];
 
 export const sortOptions = [
-  { label: "Featured", value: "featured" },
-  { label: "Newest", value: "newest" },
-  { label: "Price: Low to High", value: "price-asc" },
-  { label: "Price: High to Low", value: "price-desc" },
-  { label: "Best Rating", value: "rating" },
+  { label: 'Featured', value: 'featured' },
+  { label: 'Newest', value: 'newest' },
+  { label: 'Price: Low to High', value: 'price-asc' },
+  { label: 'Price: High to Low', value: 'price-desc' },
+  { label: 'Best Rating', value: 'rating' }
 ];
 
 export const priceRanges = [
-  { label: "Under $100", min: 0, max: 100 },
-  { label: "$100 - $200", min: 100, max: 200 },
-  { label: "$200 - $300", min: 200, max: 300 },
-  { label: "Over $300", min: 300, max: Infinity },
+  { label: 'Under $100', min: 0, max: 100 },
+  { label: '$100 - $200', min: 100, max: 200 },
+  { label: '$200 - $300', min: 200, max: 300 },
+  { label: 'Over $300', min: 300, max: Infinity }
 ];
 
 export const testimonials = [
   {
     id: 1,
-    name: "Sarah Mitchell",
-    role: "Creative Director",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
-    content: "The quality of products from Luxe is unmatched. Every piece I've purchased feels premium and timeless. Their attention to detail is remarkable.",
-    rating: 5,
+    name: 'Sarah Mitchell',
+    role: 'Creative Director',
+    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop',
+    content:
+      "The quality of products from Luxe is unmatched. Every piece I've purchased feels premium and timeless. Their attention to detail is remarkable.",
+    rating: 5
   },
   {
     id: 2,
-    name: "James Chen",
-    role: "Architect",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
-    content: "Finally found a brand that understands minimalist design without compromising on functionality. The customer service is exceptional too.",
-    rating: 5,
+    name: 'James Chen',
+    role: 'Architect',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
+    content:
+      'Finally found a brand that understands minimalist design without compromising on functionality. The customer service is exceptional too.',
+    rating: 5
   },
   {
     id: 3,
-    name: "Emma Rodriguez",
-    role: "Interior Designer",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop",
-    content: "I recommend Luxe to all my clients. The products seamlessly blend into any interior while making a subtle statement. Pure elegance.",
-    rating: 5,
-  },
+    name: 'Emma Rodriguez',
+    role: 'Interior Designer',
+    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop',
+    content:
+      'I recommend Luxe to all my clients. The products seamlessly blend into any interior while making a subtle statement. Pure elegance.',
+    rating: 5
+  }
 ];
 
 export const features = [
   {
     id: 1,
-    title: "Free Shipping",
-    description: "On orders over $100",
-    icon: "truck",
+    title: 'Free Shipping',
+    description: 'On orders over $100',
+    icon: 'truck'
   },
   {
     id: 2,
-    title: "Premium Quality",
-    description: "Handcrafted with care",
-    icon: "gem",
+    title: 'Premium Quality',
+    description: 'Handcrafted with care',
+    icon: 'gem'
   },
   {
     id: 3,
-    title: "2-Year Warranty",
-    description: "We stand behind our products",
-    icon: "shield",
+    title: '2-Year Warranty',
+    description: 'We stand behind our products',
+    icon: 'shield'
   },
   {
     id: 4,
-    title: "24/7 Support",
-    description: "Always here to help",
-    icon: "headphones",
-  },
+    title: '24/7 Support',
+    description: 'Always here to help',
+    icon: 'headphones'
+  }
 ];
 
 export const navLinks = [
-  { name: "Shop", href: "/shop" },
-  { name: "Categories", href: "/#categories" },
-  { name: "About", href: "/#features" },
-  { name: "Reviews", href: "/#testimonials" },
+  { name: 'Shop', href: '/shop' },
+  { name: 'Categories', href: '/#categories' },
+  { name: 'About', href: '/#features' },
+  { name: 'Reviews', href: '/#testimonials' }
 ];

@@ -1,5 +1,5 @@
 import { CategoriesSection } from './components/categories-section';
-import { FeaturedProducts } from './components/featured-products';
+import { FeaturedProducts } from './components/featured-products copy';
 import { FeaturesSection } from './components/features-section';
 import { HeroSection } from './components/hero-section';
 import { NewsletterSection } from './components/newsletter-section';

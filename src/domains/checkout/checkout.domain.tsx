@@ -112,7 +112,6 @@ export default function CheckoutDomain() {
   if (items.length === 0) {
     return (
       <div className='bg-background min-h-screen'>
-        <Navbar />
         <main className='pt-24 pb-16'>
           <div className='mx-auto max-w-7xl px-4 py-16 text-center sm:px-6 lg:px-8'>
             <h1 className='mb-4 text-2xl font-bold'>Your cart is empty</h1>
@@ -126,15 +125,12 @@ export default function CheckoutDomain() {
             </Link>
           </div>
         </main>
-        <Footer />
       </div>
     );
   }
 
   return (
     <div className='bg-background min-h-screen'>
-      <Navbar />
-
       <main className='pt-24 pb-16'>
         <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
           {/* Breadcrumb */}
@@ -696,8 +692,6 @@ export default function CheckoutDomain() {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }
