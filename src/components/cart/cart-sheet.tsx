@@ -1,21 +1,59 @@
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { useCartStore } from '../store/card.store';
 import { IconMinus, IconPlus, IconShoppingBag, IconTrash } from '@tabler/icons-react';
+import { useCartStore } from '~/src/store/card.store';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useCart } from '@/hooks/useCartController';
 
 export function CartSheet() {
-  const { items, isOpen, setOpen, removeItem, updateQuantity, getSubtotal, getDiscount, getTotal } =
-    useCartStore();
+  const { isOpen, setOpen } = useCartStore((s) => ({ isOpen: s.isOpen, setOpen: s.setOpen }));
 
-  const newLocal = 'bg-muted h-24 w-20 flex-shrink-0 overflow-hidden rounded-md';
+  const {
+    items,
+    itemCount,
+    subtotal,
+    updateQuantity,
+    removeItem,
+    isLoading,
+    isUpdating,
+    isRemoving
+  } = useCart();
+
+  const getItemVariant = (item: { color: string; size: string }) => {
+    const parts = [item.color, item.size].filter(Boolean);
+    return parts.length ? ` · ${parts.join(' · ')}` : '';
+  };
+
+  if (isLoading) {
+    return (
+      <Sheet open={isOpen} onOpenChange={setOpen}>
+        <SheetContent className='flex w-full flex-col gap-0 p-0 sm:max-w-md'>
+          <SheetHeader className='border-border border-b px-6 py-5'>
+            <SheetTitle className='font-display text-xl'>Your Bag · loading...</SheetTitle>
+          </SheetHeader>
+          <div className='flex-1 space-y-4 overflow-y-auto px-6 py-4'>
+            {[1, 2].map((i) => (
+              <div key={i} className='flex gap-4'>
+                <Skeleton className='h-24 w-20 rounded-md' />
+                <div className='flex-1 space-y-2'>
+                  <Skeleton className='h-4 w-3/4' />
+                  <Skeleton className='h-3 w-1/2' />
+                  <Skeleton className='h-8 w-24' />
+                </div>
+              </div>
+            ))}
+          </div>
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
   return (
     <Sheet open={isOpen} onOpenChange={setOpen}>
       <SheetContent className='flex w-full flex-col gap-0 p-0 sm:max-w-md'>
         <SheetHeader className='border-border border-b px-6 py-5'>
-          <SheetTitle className='font-display text-xl'>
-            Your Bag · {items.reduce((s, i) => s + i.quantity, 0)}
-          </SheetTitle>
+          <SheetTitle className='font-display text-xl'>Your Bag · {itemCount}</SheetTitle>
         </SheetHeader>
 
         {items.length === 0 ? (
@@ -35,12 +73,12 @@ export function CartSheet() {
           <>
             <div className='flex-1 overflow-y-auto px-6 py-4'>
               <ul className='divide-border divide-y'>
-                {items.map((item) => (
-                  <li key={`${item.id}-${item.color}-${item.size}`} className='flex gap-4 py-4'>
-                    <div className={newLocal}>
+                {items.map((item: any) => (
+                  <li key={item.id} className='flex gap-4 py-4'>
+                    <div className='bg-muted h-24 w-20 shrink-0 overflow-hidden rounded-md'>
                       <img
-                        src={item.image}
-                        alt={item.name}
+                        src={item.image || '/placeholder.png'}
+                        alt={item.name || 'Product'}
                         className='h-full w-full object-cover'
                       />
                     </div>
@@ -48,13 +86,16 @@ export function CartSheet() {
                       <div className='flex items-start justify-between gap-2'>
                         <div>
                           <p className='leading-tight font-medium'>{item.name}</p>
-                          <p className='text-muted-foreground mt-0.5 text-xs'>
-                            {[item.color, item.size].filter(Boolean).join(' · ')}
-                          </p>
+                          {getItemVariant(item) && (
+                            <p className='text-muted-foreground mt-0.5 text-xs'>
+                              {getItemVariant(item)}
+                            </p>
+                          )}
                         </div>
                         <button
-                          onClick={() => removeItem(item.id, item.color, item.size)}
-                          className='text-muted-foreground hover:text-destructive transition-colors'
+                          onClick={() => removeItem(item.id)}
+                          disabled={isRemoving}
+                          className='text-muted-foreground hover:text-destructive transition-colors disabled:opacity-50'
                           aria-label='Remove'
                         >
                           <IconTrash className='h-4 w-4' />
@@ -63,19 +104,17 @@ export function CartSheet() {
                       <div className='mt-auto flex items-center justify-between'>
                         <div className='border-border flex items-center rounded-full border'>
                           <button
-                            onClick={() =>
-                              updateQuantity(item.id, item.quantity - 1, item.color, item.size)
-                            }
-                            className='hover:bg-secondary rounded-l-full p-1.5'
+                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            disabled={isUpdating || item.quantity <= 1}
+                            className='hover:bg-secondary rounded-l-full p-1.5 disabled:opacity-40'
                           >
                             <IconMinus className='h-3 w-3' />
                           </button>
                           <span className='w-7 text-center text-sm'>{item.quantity}</span>
                           <button
-                            onClick={() =>
-                              updateQuantity(item.id, item.quantity + 1, item.color, item.size)
-                            }
-                            className='hover:bg-secondary rounded-r-full p-1.5'
+                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            disabled={isUpdating}
+                            className='hover:bg-secondary rounded-r-full p-1.5 disabled:opacity-40'
                           >
                             <IconPlus className='h-3 w-3' />
                           </button>
@@ -94,18 +133,13 @@ export function CartSheet() {
               <div className='w-full space-y-2'>
                 <div className='flex justify-between text-sm'>
                   <span className='text-muted-foreground'>Subtotal</span>
-                  <span>${getSubtotal().toFixed(2)}</span>
+                  <span>${subtotal.toFixed(2)}</span>
                 </div>
-                {getDiscount() > 0 && (
-                  <div className='flex justify-between text-sm'>
-                    <span className='text-muted-foreground'>Discount</span>
-                    <span className='text-accent'>-${getDiscount().toFixed(2)}</span>
-                  </div>
-                )}
+                {/* If your backend returns discounts or original prices, compute discount here */}
                 <Separator className='my-2' />
                 <div className='flex justify-between text-base font-semibold'>
                   <span>Total</span>
-                  <span>${getTotal().toFixed(2)}</span>
+                  <span>${subtotal.toFixed(2)}</span>
                 </div>
                 <p className='text-muted-foreground text-xs'>Shipping calculated at checkout.</p>
                 <Button className='mt-3 w-full' size='lg'>

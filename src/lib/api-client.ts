@@ -112,11 +112,11 @@ AXIOS_INSTANCE.interceptors.response.use(
   }
 );
 
-export const useCustomInstance = <T>(): ((config: InternalAxiosRequestConfig) => Promise<T>) => {
+export const customInstance = <T>(): ((config: InternalAxiosRequestConfig) => Promise<T>) => {
   return (config: InternalAxiosRequestConfig) => {
     const promise = AXIOS_INSTANCE(config).then(({ data }) => data);
     return promise;
   };
 };
 
-export default useCustomInstance;
+export default customInstance;

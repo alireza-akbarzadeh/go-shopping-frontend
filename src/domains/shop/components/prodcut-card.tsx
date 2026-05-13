@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import type { ModelsProduct } from '~/src/services/models';
 import Link from 'next/link';
 import { IconHeart, IconShoppingBag, IconStar } from '@tabler/icons-react';
-import { useCartStore } from '~/src/store/card.store';
+import { useCart } from '@/hooks/useCartController';
 
 interface ProductCardProps {
   product: ModelsProduct;
@@ -13,20 +13,25 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, index = 0 }: ProductCardProps) {
-  const addItem = useCartStore((s) => s.addItem);
+  const { addItem, isAdding } = useCart();
 
-  const handleQuickAdd = (e: React.MouseEvent) => {
+  const handleQuickAdd = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    addItem({
-      id: product.id as number,
-      name: product.name,
-      price: product.price,
-      originalPrice: product.price,
-      image: product.images?.[0] || ''
-    });
-    toast.success(`${product.name} added to cart`);
+
+    if (!product.id) return;
+
+    try {
+      await addItem(product.id, 1);
+      toast.success(`${product.name} added to cart`);
+    } catch (error) {
+      toast.error('Failed to add item');
+    }
   };
+
+  const discountPercent = product.compare_at_price
+    ? Math.round(((product.compare_at_price - product.price) / product.compare_at_price) * 100)
+    : 0;
 
   return (
     <motion.div
@@ -38,7 +43,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
       <Link href={`/product/${product.id}`} className='group block'>
         <div className='bg-muted relative aspect-4/5 overflow-hidden rounded-xl'>
           <img
-            src={product?.images?.[0]}
+            src={product?.images?.[0] || '/placeholder.png'}
             alt={product.name}
             loading='lazy'
             className='h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105'
@@ -48,12 +53,12 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
             {product.is_new && (
               <Badge className='bg-foreground text-background hover:bg-foreground'>New</Badge>
             )}
-            {product.price && (
+            {discountPercent > 0 && (
               <Badge
                 variant='outline'
                 className='border-accent bg-background/90 text-accent backdrop-blur'
               >
-                -{Math.round(((product.price - product.price) / product.price) * 100)}%
+                -{discountPercent}%
               </Badge>
             )}
           </div>
@@ -71,9 +76,14 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
           </button>
 
           <div className='absolute inset-x-3 bottom-3 translate-y-3 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100'>
-            <Button onClick={handleQuickAdd} className='w-full gap-2 shadow-lg' size='sm'>
+            <Button
+              onClick={handleQuickAdd}
+              disabled={isAdding}
+              className='w-full gap-2 shadow-lg'
+              size='sm'
+            >
               <IconShoppingBag className='h-4 w-4' />
-              Add to Cart
+              {isAdding ? 'Adding...' : 'Add to Cart'}
             </Button>
           </div>
         </div>
@@ -92,8 +102,10 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
           </div>
           <div className='flex items-baseline gap-2 pt-1'>
             <span className='text-base font-semibold'>${product.price}</span>
-            {product.price && (
-              <span className='text-muted-foreground text-sm line-through'>${product.price}</span>
+            {product.compare_at_price && product.compare_at_price > product.price && (
+              <span className='text-muted-foreground text-sm line-through'>
+                ${product.compare_at_price}
+              </span>
             )}
           </div>
         </div>

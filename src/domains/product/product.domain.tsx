@@ -1,16 +1,11 @@
 'use client';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { products } from '@/lib/data';
-import { toast } from 'sonner';
-import { useCartStore } from '~/src/store/card.store';
-import { notFound, useParams } from 'next/navigation';
-import Link from 'next/link';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   IconCheck,
   IconChevronRight,
@@ -24,7 +19,12 @@ import {
   IconStar,
   IconTruck
 } from '@tabler/icons-react';
-import { ProductCard } from '../shop/components/prodcut-card';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { toast } from 'sonner';
+import { useCart } from '~/src/hooks/useCartController';
+import { useGetProductsId } from '~/src/services/endpoints/products';
+import RelatedProduct from './related-product';
 
 const colors = [
   { name: 'Charcoal', value: '#333333' },
@@ -65,43 +65,38 @@ const reviews = [
   }
 ];
 
-export default function ProductPage() {
-  const { id } = useParams();
-  const product = products.find((p) => p.id === Number(id));
-  const addItem = useCartStore((s) => s.addItem);
+export default function ProductPage({ productId }: { productId: string }) {
+  const { addItem } = useCart();
+
+  const { data, isLoading, error } = useGetProductsId(productId);
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedColor, setSelectedColor] = useState(colors[0]);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [wishlisted, setWishlisted] = useState(false);
-  const [added, setAdded] = useState(false);
+  const product = data?.data?.product;
+
+  console.log(data, 'product');
 
   if (!product) throw notFound();
 
-  const productImages = [product.image, product.image, product.image, product.image];
-
-  const related = products
-    .filter((p) => p.category === product.category && p.id !== product.id)
-    .slice(0, 4);
-  const discount = product.originalPrice
-    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+  const discount = product.compare_at_price
+    ? Math.round(((product.compare_at_price - product.price) / product.compare_at_price) * 100)
     : 0;
 
-  const handleAdd = () => {
-    addItem({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      originalPrice: product.originalPrice,
-      image: product.image,
-      color: selectedColor?.name,
-      size: selectedSize ?? undefined,
-      quantity
-    });
-    toast.success(`${product.name} added to cart`);
-    setAdded(true);
-    setTimeout(() => setAdded(false), 1800);
+  const handleAdd = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!product.id) return;
+
+    try {
+      await addItem(product.id, 1);
+      toast.success(`${product.name} added to cart`);
+    } catch (error) {
+      toast.error('Failed to add item');
+    }
   };
 
   return (
@@ -116,7 +111,7 @@ export default function ProductPage() {
           Shop
         </Link>
         <IconChevronRight className='h-3 w-3' />
-        <span className='hover:text-foreground'>{product.category}</span>
+        <span className='hover:text-foreground'>{product.category?.name}</span>
         <IconChevronRight className='h-3 w-3' />
         <span className='text-foreground'>{product.name}</span>
       </nav>
@@ -133,14 +128,14 @@ export default function ProductPage() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3 }}
-                src={productImages[selectedImage]}
+                src={product?.images?.[selectedImage]}
                 alt={product.name}
                 className='h-full w-full object-cover'
               />
             </AnimatePresence>
 
             <div className='absolute top-4 left-4 flex flex-col gap-2'>
-              {product.isNew && (
+              {product.is_new && (
                 <Badge className='bg-foreground text-background'>New Arrival</Badge>
               )}
               {discount > 0 && (
@@ -157,7 +152,7 @@ export default function ProductPage() {
           </div>
 
           <div className='mt-4 grid grid-cols-4 gap-3'>
-            {productImages.map((img, i) => (
+            {product.images?.map((img, i) => (
               <button
                 key={i}
                 onClick={() => setSelectedImage(i)}
@@ -175,7 +170,7 @@ export default function ProductPage() {
         <div className='flex flex-col gap-6'>
           <div>
             <p className='text-muted-foreground text-xs tracking-widest uppercase'>
-              {product.category}
+              {product.category?.name}
             </p>
             <h1 className='font-display mt-2 text-3xl leading-tight md:text-4xl'>{product.name}</h1>
 
@@ -185,7 +180,7 @@ export default function ProductPage() {
                   <IconStar
                     key={i}
                     className={`h-4 w-4 ${
-                      i < Math.round(product.rating)
+                      i < Math.round(product.rating || 0)
                         ? 'fill-foreground text-foreground'
                         : 'text-muted-foreground/40'
                     }`}
@@ -193,19 +188,19 @@ export default function ProductPage() {
                 ))}
               </div>
               <p className='text-muted-foreground text-sm'>
-                {product.rating} · {product.reviews} reviews
+                {product.rating} · {product.reviews_count} reviews
               </p>
             </div>
 
             <div className='mt-4 flex items-baseline gap-3'>
               <span className='text-3xl font-semibold'>${product.price}</span>
-              {product.originalPrice && (
+              {product.compare_at_price && (
                 <>
                   <span className='text-muted-foreground text-lg line-through'>
-                    ${product.originalPrice}
+                    ${product.compare_at_price}
                   </span>
                   <Badge variant='outline' className='border-accent text-accent'>
-                    Save ${product.originalPrice - product.price}
+                    Save ${product.compare_at_price - product.price}
                   </Badge>
                 </>
               )}
@@ -292,14 +287,14 @@ export default function ProductPage() {
           {/* CTAs */}
           <div className='flex gap-2'>
             <Button onClick={handleAdd} size='lg' className='flex-1 gap-2'>
-              {added ? (
+              {true ? (
                 <>
                   <IconCheck className='h-4 w-4' /> Added to cart
                 </>
               ) : (
                 <>
                   <IconShoppingBag className='h-4 w-4' /> Add to cart · $
-                  {(product.price * quantity).toFixed(2)}
+                  {(product?.price * quantity).toFixed(2)}
                 </>
               )}
             </Button>
@@ -342,7 +337,7 @@ export default function ProductPage() {
             {[
               ['description', 'Description'],
               ['specs', 'Specifications'],
-              ['reviews', `Reviews (${product.reviews})`]
+              ['reviews', `Reviews (${product.reviews_count})`]
             ].map(([v, l]) => (
               <TabsTrigger
                 key={v}
@@ -382,7 +377,7 @@ export default function ProductPage() {
           <TabsContent value='specs' className='mt-8 max-w-3xl'>
             <dl className='divide-border divide-y'>
               {[
-                ['SKU', `LUX-${product.id.toString().padStart(4, '0')}`],
+                ['SKU', `LUX-${product?.id?.toString().padStart(4, '0')}`],
                 ['Category', product.category],
                 ['Material', 'Premium quality blend'],
                 ['Weight', '0.5 kg'],
@@ -405,7 +400,7 @@ export default function ProductPage() {
                   <IconStar
                     key={i}
                     className={`h-4 w-4 ${
-                      i < Math.round(product.rating)
+                      i < Math.round(product.rating || 0)
                         ? 'fill-foreground text-foreground'
                         : 'text-muted-foreground/40'
                     }`}
@@ -413,7 +408,7 @@ export default function ProductPage() {
                 ))}
               </div>
               <p className='text-muted-foreground mt-2 text-sm'>
-                Based on {product.reviews} reviews
+                Based on {product.reviews_count} reviews
               </p>
               <div className='mt-6 space-y-1.5'>
                 {[5, 4, 3, 2, 1].map((stars) => {
@@ -466,23 +461,8 @@ export default function ProductPage() {
           </TabsContent>
         </Tabs>
       </div>
-
       {/* Related */}
-      {related.length > 0 && (
-        <section className='mt-20'>
-          <div className='mb-8 flex items-end justify-between'>
-            <h2 className='font-display text-2xl md:text-3xl'>You may also like</h2>
-            <Link href='/' className='text-accent text-sm hover:underline'>
-              View all
-            </Link>
-          </div>
-          <div className='grid grid-cols-2 gap-x-5 gap-y-10 md:grid-cols-3 lg:grid-cols-4'>
-            {related.map((p, i) => (
-              <ProductCard key={p.id} product={p} index={i} />
-            ))}
-          </div>
-        </section>
-      )}
+      <RelatedProduct />
     </div>
   );
 }
