@@ -1,14 +1,13 @@
 // hooks/useCart.ts
 import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import {
-  useGetCart,
-  usePostCartItems,
-  usePutCartItemsId,
-  useDeleteCartItemsId
-} from '@/services/endpoints/cart';
+
 import { toast } from 'sonner';
 import { useCartStore } from '~/src/store/card.store';
+import { useGetCart } from '../services/-cart-get';
+import { usePostCartItems } from '../services/-cart-items-post';
+import { usePutCartItemsId } from '../services/-cart-items-{id}-put';
+import { useDeleteCartItemsId } from '../services/-cart-items-{id}-delete';
 
 export const useCart = () => {
   const queryClient = useQueryClient();

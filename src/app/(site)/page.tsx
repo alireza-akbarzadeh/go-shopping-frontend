@@ -2,9 +2,9 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { getQueryClient } from '@/lib/query-clinet';
 import { HomeDomains } from '@/domains/home/home.domain';
-import type { GetProductsParams } from '@/services/models';
 import type { Metadata } from 'next';
-import { useGetProductsQueryOptions } from '@/services/endpoints/products';
+import type { GetProductsParams } from '~/src/services/-products-get.schemas';
+import { getGetProductsQueryOptions } from '~/src/services/-products-get';
 
 export const metadata: Metadata = {
   title: 'LUXE | Premium Fashion & Lifestyle Ecommerce',
@@ -72,7 +72,7 @@ export default async function HomePage() {
     offset: 1
   };
 
-  const queryOptions = useGetProductsQueryOptions(params);
+  const queryOptions = getGetProductsQueryOptions(params);
   await queryClient.prefetchQuery(queryOptions);
 
   return (

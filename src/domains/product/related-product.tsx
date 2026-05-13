@@ -1,13 +1,14 @@
 import Link from 'next/link';
 import { ProductCard } from '../shop/components/prodcut-card';
-import { useGetProductsIdRelated } from '~/src/services/endpoints/products';
 import { useParams } from 'next/navigation';
+import { useGetProductsIdRelated } from '~/src/services/-products-{id}-related-get';
 
 export default function RelatedProduct() {
   const { id } = useParams();
+  const { data } = useGetProductsIdRelated(id);
+  const relatedProduct = data?.data?.data?.products;
+  const hasProduct = Boolean(relatedProduct?.length);
 
-  const { data } = useGetProductsIdRelated(Number(id));
-  const hasProduct = Boolean(data?.data?.products?.length);
   return (
     <div>
       {hasProduct && (
@@ -19,7 +20,7 @@ export default function RelatedProduct() {
             </Link>
           </div>
           <div className='grid grid-cols-2 gap-x-5 gap-y-10 md:grid-cols-3 lg:grid-cols-4'>
-            {data?.data?.products?.map((p, i) => (
+            {relatedProduct?.map((p, i) => (
               <ProductCard key={p.id} product={p} index={i} />
             ))}
           </div>

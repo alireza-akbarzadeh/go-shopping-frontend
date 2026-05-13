@@ -2,10 +2,10 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import type { ModelsProduct } from '~/src/services/models';
 import Link from 'next/link';
 import { IconHeart, IconShoppingBag, IconStar } from '@tabler/icons-react';
 import { useCart } from '@/hooks/useCartController';
+import type { ModelsProduct } from '~/src/services/-products-get.schemas';
 
 interface ProductCardProps {
   product: ModelsProduct;

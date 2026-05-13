@@ -4,8 +4,9 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { IconHeart, IconShoppingCart, IconStar } from '@tabler/icons-react';
-import type { GetProductsParams } from '~/src/services/models';
-import { useGetProducts } from '@/services/endpoints/products';
+import type { GetProductsParams } from '~/src/services/-products-get.schemas';
+import { useGetProducts } from '~/src/services/-products-get';
+import { useRouter } from 'next/navigation';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -32,6 +33,7 @@ export function FeaturedProducts() {
     offset: 1,
     status: 'active'
   };
+  const { push } = useRouter();
 
   const { data, isLoading, error } = useGetProducts(params);
 
@@ -97,7 +99,10 @@ export function FeaturedProducts() {
             <motion.div key={product.id} variants={itemVariants} className='group'>
               <div className='bg-card border-border/50 hover:border-border relative overflow-hidden rounded-2xl border transition-all duration-500 hover:shadow-xl'>
                 {/* Product Image */}
-                <div className='bg-secondary relative aspect-square overflow-hidden'>
+                <div
+                  className='bg-secondary relative aspect-square cursor-pointer overflow-hidden'
+                  onClick={() => push(`/product/${product.id}`)}
+                >
                   <Image
                     src={product?.images?.[0] as string}
                     alt={product.name}

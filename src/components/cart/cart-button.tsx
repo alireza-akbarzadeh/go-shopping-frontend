@@ -10,14 +10,11 @@ interface CartButtonProps {
 }
 
 export function CartButton({ showLabel = false }: CartButtonProps) {
-  const { itemCount } = useCart(); // get real item count from API-backed hook
-  const setOpen = useCartStore((state) => state.setOpen); // only need setOpen from store
+  const { itemCount } = useCart();
+  const setOpen = useCartStore((state) => state.setOpen);
 
   return (
-    <button
-      className='group relative'
-      onClick={() => setOpen(true)} // open the sheet instead of navigating
-    >
+    <div className='group relative' onClick={() => setOpen(true)}>
       <Button
         variant='ghost'
         size={showLabel ? 'default' : 'icon'}
@@ -50,6 +47,6 @@ export function CartButton({ showLabel = false }: CartButtonProps) {
           )}
         </AnimatePresence>
       </Button>
-    </button>
+    </div>
   );
 }

@@ -1,5 +1,10 @@
 // src/lib/api-client.ts
-import Axios, { AxiosError, HttpStatusCode, type InternalAxiosRequestConfig } from 'axios';
+import Axios, {
+  AxiosError,
+  HttpStatusCode,
+  type AxiosInterceptorOptions,
+  type InternalAxiosRequestConfig
+} from 'axios';
 import { toast } from 'sonner';
 
 export const BASE_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:8080/api/v1';
@@ -100,23 +105,10 @@ AXIOS_INSTANCE.interceptors.response.use(
 );
 
 // ✅ EXPORT A PLAIN ASYNC FUNCTION (no hooks, no currying)
-export async function customInstance<T>(
-  url: string,
-  options?: {
-    method?: string;
-    headers?: Record<string, string>;
-    params?: Record<string, any>;
-    data?: any;
-    signal?: AbortSignal;
-  }
-): Promise<T> {
+export async function customInstance<T>(url: string, options: any): Promise<T> {
   const response = await AXIOS_INSTANCE({
     url,
-    method: options?.method || 'GET',
-    headers: options?.headers,
-    params: options?.params,
-    data: options?.data,
-    signal: options?.signal
+    ...options
   });
   return response.data;
 }

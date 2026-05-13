@@ -75,11 +75,9 @@ export default function ProductPage({ productId }: { productId: string }) {
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [wishlisted, setWishlisted] = useState(false);
-  const product = data?.data?.data?.product;
+  const product = data?.data?.product;
 
-  console.log(data, 'product');
-
-  if (!product) throw notFound();
+  if (!data?.data?.product) throw notFound();
 
   const discount = product.compare_at_price
     ? Math.round(((product.compare_at_price - product.price) / product.compare_at_price) * 100)
