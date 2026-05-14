@@ -89,3 +89,41 @@ export const getErrorMessage = (error: AxiosError<ApiErrorResponse>): string => 
     error.response?.data?.message || error.response?.data?.error || error.message || 'unkown error'
   );
 };
+
+
+// ---------- Error extractor ----------
+/**
+ * Pulls the most meaningful human-readable message from any Axios error shape.
+ * Orval-generated schemas often wrap errors as { message, error, errors[] }.
+ */
+export  function extractErrorMessage(error: AxiosError<ApiErrorResponse>): string {
+  const data = error.response?.data as Record<string, unknown> | undefined;
+
+  if (data) {
+    // Handle validation arrays: { errors: [{ field, message }] }
+    if (Array.isArray(data['errors']) && data['errors'].length > 0) {
+      const first = data['errors'][0] as Record<string, unknown>;
+      const field = typeof first['field'] === 'string' ? `${first['field']}: ` : '';
+      const msg =
+          typeof first['message'] === 'string'
+              ? first['message']
+              : JSON.stringify(first);
+      return `${field}${msg}`;
+    }
+
+    if (typeof data['message'] === 'string' && data['message']) {
+      return data['message'];
+    }
+    if (typeof data['error'] === 'string' && data['error']) {
+      return data['error'];
+    }
+  }
+
+  if (!error.response && error.request) {
+    return 'No response from server. Check your network connection.';
+  }
+
+  return error.message || 'An unexpected error occurred.';
+}
+
+

@@ -1,4 +1,4 @@
-// src/lib/api-client.ts
+// src/lib/api/api-client.ts
 import Axios, {
   AxiosError,
   HttpStatusCode,
@@ -6,15 +6,15 @@ import Axios, {
   type AxiosResponse,
   type InternalAxiosRequestConfig
 } from 'axios';
-
 import { toast } from 'sonner';
 import { APP_CONFIG } from '../config';
-import { handleApiError } from './handle-api-error';
-import type { ApiClientOptions, ApiErrorResponse } from './type';
 import { isRequestCancelled } from './api-utils';
 import { logger } from './logger';
+import type { ApiClientOptions, ApiErrorResponse } from './type';
+import {handleApiError} from "@/lib/api/handle-api-error";
 
-export const BASE_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:8080/api/v1';
+export const BASE_URL =
+    process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:8080/api/v1';
 
 export const AXIOS_INSTANCE = Axios.create({
   baseURL: BASE_URL,
@@ -26,12 +26,13 @@ export const AXIOS_INSTANCE = Axios.create({
   }
 });
 
-// ---------- Refresh token queue (unchanged) ----------
+// ---------- Refresh token queue ----------
 let isRefreshing = false;
 let failedQueue: Array<{
   resolve: (value: unknown) => void;
-  reject: (reason?: any) => void;
+  reject: (reason?: unknown) => void;
   config: InternalAxiosRequestConfig;
+
 }> = [];
 
 const processQueue = (error: Error | null, token: string | null = null) => {
@@ -46,119 +47,120 @@ const processQueue = (error: Error | null, token: string | null = null) => {
   failedQueue = [];
 };
 
-// ---------- Response interceptor (unchanged) ----------
+// ---------- Response interceptor ----------
 AXIOS_INSTANCE.interceptors.response.use(
-  (response) => response,
-  async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & {
-      _retry?: boolean;
-    };
+    (response) => response,
+    async (error: AxiosError) => {
+      const originalRequest = error.config as InternalAxiosRequestConfig & {
+        _retry?: boolean;
+      };
 
-    const showErrorToast = () => {
-      let errorMessage = 'An unexpected error occurred';
-      if (error.response?.data) {
-        const data = error.response.data as any;
-        errorMessage = data.message || data.error || JSON.stringify(data);
-      } else if (error.request) {
-        errorMessage = 'No response from server. Please check your network.';
-      } else {
-        errorMessage = error.message;
+      if (
+          error.response?.status !== HttpStatusCode.Unauthorized ||
+          originalRequest._retry
+      ) {
+        return Promise.reject(error);
       }
-      toast.error(errorMessage);
-    };
 
-    if (error.response?.status !== HttpStatusCode.Unauthorized || originalRequest._retry) {
-      if (error.response?.status === HttpStatusCode.Unauthorized) {
-        toast.error('Authentication failed. Please log in again.');
-      } else if (error.response?.status === HttpStatusCode.Forbidden) {
-        toast.error('You do not have permission to perform this action.');
-      } else {
-        showErrorToast();
+      originalRequest._retry = true;
+
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject, config: originalRequest });
+        });
       }
-      return Promise.reject(error);
-    }
 
-    originalRequest._retry = true;
+      isRefreshing = true;
 
-    if (isRefreshing) {
-      return new Promise((resolve, reject) => {
-        failedQueue.push({ resolve, reject, config: originalRequest });
-      });
-    }
-
-    isRefreshing = true;
-
-    try {
-      const refreshResponse = await Axios.post(
-        '/api/auth/refresh',
-        {},
-        {
-          baseURL: '',
-          withCredentials: true
-        }
-      );
-      const newToken = refreshResponse.data.access_token;
-      processQueue(null, newToken);
-      if (newToken) {
+      try {
+        const refreshResponse = await Axios.post(
+            '/api/auth/refresh',
+            {},
+            { baseURL: '', withCredentials: true }
+        );
+        const newToken: string = refreshResponse.data.access_token;
+        processQueue(null, newToken);
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        return AXIOS_INSTANCE(originalRequest);
+      } catch (refreshError) {
+        processQueue(refreshError as Error, null);
+        toast.error('Session expired. Please log in again.');
+        if (typeof window !== 'undefined') window.location.href = '/login';
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
       }
-      return AXIOS_INSTANCE(originalRequest);
-    } catch (refreshError) {
-      processQueue(refreshError as Error, null);
-      toast.error('Session expired. Please log in again.');
-      if (typeof window !== 'undefined') {
-        window.location.href = '/login';
-      }
-      return Promise.reject(refreshError);
-    } finally {
-      isRefreshing = false;
     }
-  }
 );
 
+
+
+// ---------- customInstance — Orval-compatible signature ----------
 /**
- * Enhanced API client with error handling and toast notifications
- * @param config - Axios request configuration
- * @param options - Additional options for the API client
- * @returns Promise resolving to the API response data
+ * Orval generates calls as:  customInstance<T>(url, config?)
+ * NOT as:                    customInstance<T>(config, options?)
+ *
+ * This overload set satisfies both the Orval-generated code AND any
+ * direct call-sites that pass a full AxiosRequestConfig as the first arg.
  */
-export const customInstance = async <T>(
-  config: AxiosRequestConfig,
-  options?: ApiClientOptions
-): Promise<T> => {
-  const apiOptions: ApiClientOptions = options || {};
+
+// Overload 1 — Orval style: customInstance<T>('/products', { method, params, signal })
+export async function customInstance<T>(
+    url: string,
+    config?: AxiosRequestConfig & ApiClientOptions
+): Promise<T>;
+
+// Overload 2 — legacy style: customInstance<T>({ url, method, ... }, options?)
+export async function customInstance<T>(
+    config: AxiosRequestConfig,
+    options?: ApiClientOptions
+): Promise<T>;
+
+// Implementation
+export async function customInstance<T>(
+    urlOrConfig: string | AxiosRequestConfig,
+    configOrOptions?: (AxiosRequestConfig & ApiClientOptions) | ApiClientOptions
+): Promise<T> {
+  // Normalise arguments into a single AxiosRequestConfig + ApiClientOptions
+  let axiosConfig: AxiosRequestConfig;
+  let apiOptions: ApiClientOptions;
+
+  if (typeof urlOrConfig === 'string') {
+    // Orval path
+    const { skipToast, logResponse, cancelToken, customErrorHandler, ...rest } =
+    (configOrOptions as AxiosRequestConfig & ApiClientOptions) ?? {};
+    axiosConfig = { url: urlOrConfig, ...rest };
+    apiOptions = { skipToast, logResponse, cancelToken, customErrorHandler };
+  } else {
+    // Legacy path
+    axiosConfig = urlOrConfig;
+    apiOptions = (configOrOptions as ApiClientOptions) ?? {};
+  }
 
   try {
-    const response: AxiosResponse = await AXIOS_INSTANCE({
-      ...config,
-      ...apiOptions,
+    const response: AxiosResponse<T> = await AXIOS_INSTANCE({
+      ...axiosConfig,
       cancelToken: apiOptions.cancelToken?.token
     });
 
-    // Log response if requested
     if (apiOptions.logResponse) {
-      logger.info(`API Response [${config.url}]:`, response.data);
+      logger.info(`API Response [${axiosConfig.url}]:`, response.data);
     }
 
     return response.data;
   } catch (error) {
     const axiosError = error as AxiosError<ApiErrorResponse>;
 
-    // Don't handle cancelled requests
-    if (isRequestCancelled(axiosError)) {
-      throw axiosError;
-    }
+    if (isRequestCancelled(axiosError)) throw axiosError;
 
     if (apiOptions.customErrorHandler) {
       apiOptions.customErrorHandler(axiosError);
     } else {
-      handleApiError(axiosError, config, apiOptions);
+      handleApiError(axiosError, axiosConfig, apiOptions);
     }
 
-    if (axiosError.response && axiosError.response.data) {
-      return axiosError.response.data as unknown as T;
-    }
-    console.warn('Received error response but no data:', axiosError.response);
+    // Re-throw so React Query / callers can react to the error state.
+    // Do NOT silently return response.data on error — that breaks isError flags.
     throw axiosError;
   }
-};
+}
