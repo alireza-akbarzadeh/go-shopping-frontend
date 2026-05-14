@@ -25,6 +25,8 @@ import { toast } from 'sonner';
 import { useCart } from '~/src/hooks/useCartController';
 import RelatedProduct from './related-product';
 import { useGetProductsId } from '~/src/services/-products-{id}-get';
+import { useGetOrders } from '~/src/services/-orders-get';
+import { useGetOrdersId } from '~/src/services/-orders-{id}-get';
 
 const colors = [
   { name: 'Charcoal', value: '#333333' },
@@ -75,9 +77,10 @@ export default function ProductPage({ productId }: { productId: string }) {
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [wishlisted, setWishlisted] = useState(false);
+
   const product = data?.data?.product;
 
-  if (!data?.data?.product) throw notFound();
+  if (!product) throw notFound();
 
   const discount = product.compare_at_price
     ? Math.round(((product.compare_at_price - product.price) / product.compare_at_price) * 100)

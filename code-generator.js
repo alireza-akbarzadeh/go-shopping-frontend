@@ -66,6 +66,14 @@ const codeGenerator = async (baseURL, destination) => {
     log('OpenAPI spec fetched:', response.statusText);
     const spec = response.data;
 
+    // Compute relative path from generated services dir to the custom instance
+    const relativeMutatorPath = path.relative(generatedServicesPath, customInstancePath);
+    // Convert Windows backslashes to forward slashes and ensure it starts with './' or '../'
+    const normalizedMutatorPath = relativeMutatorPath.split(path.sep).join('/');
+    const mutatorImportPath = normalizedMutatorPath.startsWith('.')
+      ? normalizedMutatorPath
+      : `./${normalizedMutatorPath}`;
+
     const configs = [];
     const outputPath = `${generatedServicesPath}/`;
     fs.mkdirSync(outputPath, { recursive: true });
@@ -91,14 +99,14 @@ const codeGenerator = async (baseURL, destination) => {
           output: {
             target: targetFile,
             client: 'react-query',
+            httpClient: 'axios',
             mode: 'split',
             prettier: true,
             override: {
               mutator: {
-                path: customInstancePath,
+                path: mutatorImportPath, // ← correct relative path
                 name: 'customInstance'
-              },
-              query: { useQuery: true }
+              }
             }
           },
           input: { target: singleEndpointData }
