@@ -108,7 +108,6 @@ export function useProductFilters() {
     limit: 20,
     offset: 0,
     name: searchQuery || undefined,
-    category_id: categoryId ?? undefined,
     min_price: priceMin > 0 ? priceMin : undefined,
     max_price: priceMax < 500 ? priceMax : undefined,
     is_new: showOnlyNew || undefined,
