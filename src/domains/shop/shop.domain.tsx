@@ -1,10 +1,16 @@
+'use client';
 import { motion } from 'framer-motion';
 import { ActiveFilter } from './components/active-filter';
 import { FilterContent } from './components/filter-contemt';
 import { ProductGrid } from './components/product-grid';
 import { ShopToolbar } from './components/shop-toolbar';
+import { useGetProducts } from '~/src/services/-products-get';
+import { useProductFilters } from './useProductFilters';
 
 export function ShopDomain() {
+  const { apiParams } = useProductFilters();
+  const { data } = useGetProducts(apiParams);
+  const total = data?.data?.total ?? 0;
   return (
     <div className='bg-background min-h-screen'>
       <main className='pt-24 pb-24 lg:pt-32'>
@@ -24,7 +30,7 @@ export function ShopDomain() {
           </motion.div>
 
           {/* Toolbar */}
-          <ShopToolbar />
+          <ShopToolbar total={total} />
           <ActiveFilter />
 
           {/* Main Content */}
@@ -42,7 +48,7 @@ export function ShopDomain() {
             </motion.aside>
 
             {/* Product Grid */}
-            <ProductGrid />
+            <ProductGrid products={data?.data?.products || []} />
           </div>
         </div>
       </main>

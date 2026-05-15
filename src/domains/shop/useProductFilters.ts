@@ -6,180 +6,176 @@ import {
   parseAsInteger,
   parseAsString,
   parseAsBoolean,
-  parseAsArrayOf,
   parseAsStringLiteral
 } from 'nuqs';
-import { products } from '@/lib/data';
+import type { GetProductsParams, GetProductsSort } from '~/src/services/-products-get.schemas';
 
-// ── Types ──────────────────────────────────────────────
 type GridCols = 3 | 4;
 type SortBy = 'featured' | 'newest' | 'price-asc' | 'price-desc' | 'rating';
 
 const sortValues = ['featured', 'newest', 'price-asc', 'price-desc', 'rating'] as const;
 
-// ── Hook ───────────────────────────────────────────────
+const mapSortToApi = (sort: SortBy): GetProductsSort | undefined => {
+  switch (sort) {
+    case 'newest':
+      return 'newest';
+    case 'price-asc':
+      return 'price_asc';
+    case 'price-desc':
+      return 'price_desc';
+    case 'rating':
+      return 'rating_desc';
+    default:
+      return undefined;
+  }
+};
+
 export function useProductFilters() {
   const [params, setParams] = useQueryStates(
     {
-      selectedCategories: parseAsArrayOf(parseAsString, ',').withDefault(['All']),
+      // Existing filters
+      categoryId: parseAsInteger.withDefault(0),
       sortBy: parseAsStringLiteral(sortValues).withDefault('featured'),
       priceMin: parseAsInteger.withDefault(0),
       priceMax: parseAsInteger.withDefault(500),
       searchQuery: parseAsString.withDefault(''),
       gridCols: parseAsInteger.withDefault(4),
       showOnlyNew: parseAsBoolean.withDefault(false),
-      showOnlySale: parseAsBoolean.withDefault(false)
+      showOnlySale: parseAsBoolean.withDefault(false), // client-only, not in API
+
+      // New API-supported filters
+      minRating: parseAsInteger.withDefault(0),
+      maxRating: parseAsInteger.withDefault(5),
+      minReviews: parseAsInteger.withDefault(0),
+      maxReviews: parseAsInteger.withDefault(1000), // adjust default as needed
+      isDigital: parseAsBoolean.withDefault(false)
     },
-    { shallow: false } // update URL but don't re-render the whole page unnecessarily
+    { shallow: false }
   );
 
   const {
-    selectedCategories,
+    categoryId,
     sortBy,
     priceMin,
     priceMax,
     searchQuery,
     gridCols,
     showOnlyNew,
-    showOnlySale
+    showOnlySale,
+    minRating,
+    maxRating,
+    minReviews,
+    maxReviews,
+    isDigital
   } = params;
 
-  // ── Setters (keep the same API) ──────────────────────
-  const setSelectedCategories = (value: string[] | ((prev: string[]) => string[])) => {
-    setParams((prev) => ({
-      selectedCategories: typeof value === 'function' ? value(prev.selectedCategories) : value
-    }));
-  };
-
-  const setPriceRange = (value: number[]) => setParams({ priceMin: value[0], priceMax: value[1] });
-
+  // ── Setters ──────────────────────────────────────────
+  const setCategoryId = (id: number | null) => setParams({ categoryId: id });
   const setSortBy = (value: SortBy) => setParams({ sortBy: value });
+  const setPriceRange = (values: [number, number]) =>
+    setParams({ priceMin: values[0], priceMax: values[1] });
   const setSearchQuery = (value: string) => setParams({ searchQuery: value });
   const setGridCols = (value: GridCols) => setParams({ gridCols: value });
   const setShowOnlyNew = (value: boolean) => setParams({ showOnlyNew: value });
   const setShowOnlySale = (value: boolean) => setParams({ showOnlySale: value });
 
-  // ── Category toggle (same logic) ─────────────────────
-  const handleCategoryToggle = (category: string) => {
-    setParams((prev) => {
-      const cats = prev.selectedCategories;
+  // New setters
+  const setRatingRange = (min: number, max: number) =>
+    setParams({ minRating: min, maxRating: max });
+  const setReviewsRange = (min: number, max: number) =>
+    setParams({ minReviews: min, maxReviews: max });
+  const setIsDigital = (value: boolean) => setParams({ isDigital: value });
 
-      if (category === 'All') {
-        return { selectedCategories: ['All'] };
-      }
-
-      const withoutAll = cats.filter((c) => c !== 'All');
-
-      if (withoutAll.includes(category)) {
-        const filtered = withoutAll.filter((c) => c !== category);
-        return {
-          selectedCategories: filtered.length === 0 ? ['All'] : filtered
-        };
-      }
-
-      return { selectedCategories: [...withoutAll, category] };
-    });
-  };
-
-  // ── Clear all filters ────────────────────────────────
   const clearFilters = () => {
     setParams({
-      selectedCategories: ['All'],
+      categoryId: null,
       priceMin: 0,
       priceMax: 500,
       showOnlyNew: false,
       showOnlySale: false,
-      searchQuery: ''
+      searchQuery: '',
+      sortBy: 'featured',
+      minRating: 0,
+      maxRating: 5,
+      minReviews: 0,
+      maxReviews: 1000,
+      isDigital: false
     });
   };
 
-  // ── Derived: price range as array ────────────────────
-  const priceRange = [priceMin, priceMax] as number[];
+  // ── Convert to API parameters ─────────────────────────
+  const apiParams: GetProductsParams = {
+    limit: 20,
+    offset: 0,
+    name: searchQuery || undefined,
+    category_id: categoryId ?? undefined,
+    min_price: priceMin > 0 ? priceMin : undefined,
+    max_price: priceMax < 500 ? priceMax : undefined,
+    is_new: showOnlyNew || undefined,
+    sort: mapSortToApi(sortBy),
+    min_rating: minRating > 0 ? minRating : undefined,
+    max_rating: maxRating < 5 ? maxRating : undefined,
+    min_reviews: minReviews > 0 ? minReviews : undefined,
+    max_reviews: maxReviews < 1000 ? maxReviews : undefined,
+    is_digital: isDigital || undefined
+  };
 
-  // ── Derived: filtered products (identical logic) ─────
-  const filteredProducts = useMemo(() => {
-    let result = [...products];
-
-    // Search
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      result = result.filter(
-        (p) => p.name.toLowerCase().includes(query) || p.category.toLowerCase().includes(query)
-      );
-    }
-
-    // Categories
-    if (!selectedCategories.includes('All')) {
-      result = result.filter((p) => selectedCategories.includes(p.category));
-    }
-
-    // Price
-    result = result.filter((p) => Number(p.price) >= priceMin && Number(p.price) <= priceMax);
-
-    // New / Sale
-    if (showOnlyNew) {
-      result = result.filter((p) => p.isNew);
-    }
-    if (showOnlySale) {
-      result = result.filter((p) => p.originalPrice);
-    }
-
-    // Sorting
-    switch (sortBy) {
-      case 'newest':
-        result = result.filter((p) => p.isNew).concat(result.filter((p) => !p.isNew));
-        break;
-      case 'price-asc':
-        result.sort((a, b) => a.price - b.price);
-        break;
-      case 'price-desc':
-        result.sort((a, b) => b.price - a.price);
-        break;
-      case 'rating':
-        result.sort((a, b) => b.rating - a.rating);
-        break;
-    }
-
-    return result;
-  }, [searchQuery, selectedCategories, priceMin, priceMax, showOnlyNew, showOnlySale, sortBy]);
-
-  // ── Derived: active filters flag ─────────────────────
-  const hasActiveFilters = useMemo(
-    () =>
-      !selectedCategories.includes('All') ||
+  const hasActiveFilters = useMemo(() => {
+    return (
+      categoryId !== null ||
       priceMin > 0 ||
       priceMax < 500 ||
       showOnlyNew ||
       showOnlySale ||
-      Boolean(searchQuery),
-    [selectedCategories, priceMin, priceMax, showOnlyNew, showOnlySale, searchQuery]
-  );
+      searchQuery !== '' ||
+      minRating > 0 ||
+      maxRating < 5 ||
+      minReviews > 0 ||
+      maxReviews < 1000 ||
+      isDigital
+    );
+  }, [
+    categoryId,
+    priceMin,
+    priceMax,
+    showOnlyNew,
+    showOnlySale,
+    searchQuery,
+    minRating,
+    maxRating,
+    minReviews,
+    maxReviews,
+    isDigital
+  ]);
 
   return {
     // State
-    selectedCategories,
+    categoryId,
     sortBy,
-    priceRange,
+    priceRange: [priceMin, priceMax] as [number, number],
     searchQuery,
     gridCols,
     showOnlyNew,
     showOnlySale,
-
+    minRating,
+    maxRating,
+    minReviews,
+    maxReviews,
+    isDigital,
     // Setters
-    setSelectedCategories,
+    setCategoryId,
     setSortBy,
     setPriceRange,
     setSearchQuery,
     setGridCols,
     setShowOnlyNew,
     setShowOnlySale,
-
-    // Helpers
-    handleCategoryToggle,
+    setRatingRange,
+    setReviewsRange,
+    setIsDigital,
     clearFilters,
-
-    // Derived
-    filteredProducts,
+    // Helpers
+    apiParams,
     hasActiveFilters
   };
 }

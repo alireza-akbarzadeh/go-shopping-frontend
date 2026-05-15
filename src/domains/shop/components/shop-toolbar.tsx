@@ -1,3 +1,5 @@
+'use client';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -19,7 +21,12 @@ import { motion } from 'framer-motion';
 import { useProductFilters } from '../useProductFilters';
 import { FilterContent } from './filter-contemt';
 
-export function ShopToolbar() {
+interface ShopToolbarProps {
+  total: number;
+}
+
+export function ShopToolbar(props: ShopToolbarProps) {
+  const { total } = props;
   const {
     sortBy,
     searchQuery,
@@ -27,7 +34,6 @@ export function ShopToolbar() {
     setSortBy,
     setSearchQuery,
     setGridCols,
-    filteredProducts,
     hasActiveFilters
   } = useProductFilters();
 
@@ -75,11 +81,7 @@ export function ShopToolbar() {
       </div>
 
       <div className='flex items-center gap-4'>
-        {/* Results Count */}
-        <span className='text-muted-foreground hidden text-sm sm:block'>
-          {filteredProducts.length} products
-        </span>
-
+        <span className='text-muted-foreground hidden text-sm sm:block'>{total} products</span>
         {/* Sort */}
         <Select value={sortBy} onValueChange={setSortBy}>
           <SelectTrigger className='w-44 gap-2'>

@@ -1,16 +1,24 @@
 'use client';
-
 import { Button } from '@/components/ui/button';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useProductFilters } from '../useProductFilters';
 import { ProductCard } from './prodcut-card';
+import type { GetProducts200DataProductsItem } from '~/src/services/-products-get.schemas';
 
-export function ProductGrid() {
-  const { gridCols, filteredProducts, clearFilters } = useProductFilters();
+interface ProductGridDataProps {
+  products: GetProducts200DataProductsItem[];
+}
 
+export function ProductGrid(props: ProductGridDataProps) {
+  const { products } = props;
+  const { gridCols, clearFilters } = useProductFilters();
+  const mappedProduct = products?.map((p) => ({
+    ...p.items,
+    is_liked: p.is_liked
+  }));
   return (
     <div className='flex-1'>
-      {filteredProducts.length === 0 ? (
+      {products?.length === 0 ? (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className='py-20 text-center'>
           <p className='text-muted-foreground mb-4'>No products found matching your criteria.</p>
           <Button variant='outline' onClick={clearFilters}>
@@ -29,7 +37,7 @@ export function ProductGrid() {
           }`}
         >
           <AnimatePresence mode='popLayout'>
-            {filteredProducts.map((product, index) => (
+            {mappedProduct?.map((product, index) => (
               <ProductCard key={product.id} product={product} index={index} />
             ))}
           </AnimatePresence>
