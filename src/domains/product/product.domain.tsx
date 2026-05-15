@@ -9,7 +9,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   IconCheck,
   IconChevronRight,
-  IconHeart,
   IconMinus,
   IconPlus,
   IconRotateClockwise,
@@ -22,68 +21,31 @@ import {
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { toast } from 'sonner';
+import { LikeButton } from '~/src/components/buttons/like-button';
 import { useCart } from '~/src/hooks/useCartController';
-import RelatedProduct from './related-product';
 import { useGetProductsId } from '~/src/services/-products-{id}-get';
-import { useGetOrders } from '~/src/services/-orders-get';
-import { useGetOrdersId } from '~/src/services/-orders-{id}-get';
-
-const colors = [
-  { name: 'Charcoal', value: '#333333' },
-  { name: 'Cream', value: '#F5F5DC' },
-  { name: 'Navy', value: '#1a365d' },
-  { name: 'Cognac', value: '#8B4513' }
-];
-
-const sizes = ['XS', 'S', 'M', 'L', 'XL'];
-
-const reviews = [
-  {
-    id: 1,
-    author: 'Sarah M.',
-    rating: 5,
-    date: '2 weeks ago',
-    title: 'Exceeded my expectations',
-    content: "The quality is outstanding. I've received so many compliments. Worth every dollar.",
-    verified: true
-  },
-  {
-    id: 2,
-    author: 'Michael R.',
-    rating: 4,
-    date: '1 month ago',
-    title: 'Great quality, minor issues',
-    content: 'Material feels premium and the design is exactly as pictured. Shipping a touch slow.',
-    verified: true
-  },
-  {
-    id: 3,
-    author: 'Emma L.',
-    rating: 5,
-    date: '1 month ago',
-    title: 'Perfect addition to my collection',
-    content: 'Craftsmanship is impeccable and it looks even better in person.',
-    verified: true
-  }
-];
+import ProductReviews from './components/product-reviews';
+import RelatedProduct from './related-product';
 
 export default function ProductPage({ productId }: { productId: string }) {
   const { addItem } = useCart();
 
   const { data, isLoading, error } = useGetProductsId(productId);
 
+  const product = data?.data?.product;
+
   const [selectedImage, setSelectedImage] = useState(0);
-  const [selectedColor, setSelectedColor] = useState(colors[0]);
+  const [selectedColor, setSelectedColor] = useState(product?.colors?.[0]);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
-  const [wishlisted, setWishlisted] = useState(false);
-
-  const product = data?.data?.product;
+  console.log(data);
 
   if (!product) throw notFound();
 
   const discount = product.compare_at_price
-    ? Math.round(((product.compare_at_price - product.price) / product.compare_at_price) * 100)
+    ? Math.round(
+        ((product.compare_at_price - Number(product.price)) / product.compare_at_price) * 100
+      )
     : 0;
 
   const handleAdd = async (e: React.MouseEvent) => {
@@ -201,7 +163,7 @@ export default function ProductPage({ productId }: { productId: string }) {
                     ${product.compare_at_price}
                   </span>
                   <Badge variant='outline' className='border-accent text-accent'>
-                    Save ${product.compare_at_price - product.price}
+                    Save ${product.compare_at_price - Number(product.price)}
                   </Badge>
                 </>
               )}
@@ -216,22 +178,22 @@ export default function ProductPage({ productId }: { productId: string }) {
           <div>
             <div className='mb-3 flex items-center justify-between'>
               <p className='text-sm font-medium'>Color</p>
-              <p className='text-muted-foreground text-sm'>{selectedColor?.name}</p>
+              <p className='text-muted-foreground text-sm'>{selectedColor}</p>
             </div>
             <div className='flex gap-2.5'>
-              {colors.map((color) => (
+              {product.colors?.map((color) => (
                 <button
-                  key={color.name}
+                  key={color}
                   onClick={() => setSelectedColor(color)}
                   className={`relative h-10 w-10 rounded-full border-2 transition-all ${
-                    selectedColor?.name === color.name
+                    selectedColor === color
                       ? 'border-accent scale-110'
                       : 'border-border hover:scale-105'
                   }`}
-                  style={{ backgroundColor: color.value }}
-                  title={color.name}
+                  style={{ backgroundColor: color }}
+                  title={color}
                 >
-                  {selectedColor?.name === color.name && (
+                  {selectedColor === color && (
                     <IconCheck className='text-background absolute inset-0 m-auto h-4 w-4 mix-blend-difference' />
                   )}
                 </button>
@@ -246,7 +208,7 @@ export default function ProductPage({ productId }: { productId: string }) {
               <button className='text-accent text-xs hover:underline'>Size guide</button>
             </div>
             <div className='flex flex-wrap gap-2'>
-              {sizes.map((size) => (
+              {product.sizes?.map((size) => (
                 <button
                   key={size}
                   onClick={() => setSelectedSize(size)}
@@ -295,18 +257,11 @@ export default function ProductPage({ productId }: { productId: string }) {
               ) : (
                 <>
                   <IconShoppingBag className='h-4 w-4' /> Add to cart · $
-                  {(product?.price * quantity).toFixed(2)}
+                  {(Number(product?.price) * quantity).toFixed(2)}
                 </>
               )}
             </Button>
-            <Button
-              size='lg'
-              variant='outline'
-              onClick={() => setWishlisted(!wishlisted)}
-              aria-label='Wishlist'
-            >
-              <IconHeart className={`h-4 w-4 ${wishlisted ? 'fill-accent text-accent' : ''}`} />
-            </Button>
+            <LikeButton isLiked={data.data?.is_liked as boolean} productId={product.id as number} />
           </div>
 
           {/* Trust badges */}
@@ -379,7 +334,7 @@ export default function ProductPage({ productId }: { productId: string }) {
             <dl className='divide-border divide-y'>
               {[
                 ['SKU', `LUX-${product?.id?.toString().padStart(4, '0')}`],
-                ['Category', product.category],
+                ['Category', product.category?.name],
                 ['Material', 'Premium quality blend'],
                 ['Weight', '0.5 kg'],
                 ['Dimensions', '10" x 8" x 4"'],
@@ -394,71 +349,7 @@ export default function ProductPage({ productId }: { productId: string }) {
           </TabsContent>
 
           <TabsContent value='reviews' className='mt-8 grid gap-10 lg:grid-cols-[280px_1fr]'>
-            <div>
-              <p className='font-display text-5xl'>{product.rating}</p>
-              <div className='mt-2 flex'>
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <IconStar
-                    key={i}
-                    className={`h-4 w-4 ${
-                      i < Math.round(product.rating || 0)
-                        ? 'fill-foreground text-foreground'
-                        : 'text-muted-foreground/40'
-                    }`}
-                  />
-                ))}
-              </div>
-              <p className='text-muted-foreground mt-2 text-sm'>
-                Based on {product.reviews_count} reviews
-              </p>
-              <div className='mt-6 space-y-1.5'>
-                {[5, 4, 3, 2, 1].map((stars) => {
-                  const pct =
-                    stars === 5 ? 70 : stars === 4 ? 20 : stars === 3 ? 7 : stars === 2 ? 2 : 1;
-                  return (
-                    <div key={stars} className='flex items-center gap-2 text-xs'>
-                      <span className='text-muted-foreground w-12'>{stars} star</span>
-                      <div className='bg-muted h-1.5 flex-1 overflow-hidden rounded-full'>
-                        <div className='bg-foreground h-full' style={{ width: `${pct}%` }} />
-                      </div>
-                      <span className='text-muted-foreground w-8 text-right'>{pct}%</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            <ul className='space-y-6'>
-              {reviews.map((r) => (
-                <li key={r.id} className='border-border border-b pb-6'>
-                  <div className='flex items-center justify-between'>
-                    <div className='flex items-center gap-2'>
-                      <p className='font-medium'>{r.author}</p>
-                      {r.verified && (
-                        <Badge variant='outline' className='gap-1 text-[10px]'>
-                          <IconCheck className='h-2.5 w-2.5' /> Verified
-                        </Badge>
-                      )}
-                    </div>
-                    <p className='text-muted-foreground text-xs'>{r.date}</p>
-                  </div>
-                  <div className='mt-2 flex'>
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <IconStar
-                        key={i}
-                        className={`h-3.5 w-3.5 ${
-                          i < r.rating
-                            ? 'fill-foreground text-foreground'
-                            : 'text-muted-foreground/40'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                  <p className='mt-2 font-medium'>{r.title}</p>
-                  <p className='text-muted-foreground mt-1 text-sm'>{r.content}</p>
-                </li>
-              ))}
-            </ul>
+            <ProductReviews productId={productId} product={product} />
           </TabsContent>
         </Tabs>
       </div>

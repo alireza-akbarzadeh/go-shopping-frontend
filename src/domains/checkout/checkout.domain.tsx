@@ -22,8 +22,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Navbar } from '@/components/navbar';
-import { Footer } from '@/components/footer';
+
 import { useCartStore } from '~/src/store/card.store';
 
 const steps = [

@@ -5,7 +5,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { IconMoodShare } from '@tabler/icons-react';
-import type { GetUsers200DataUsersItem } from '~/src/services/models';
+import type { GetUsers200DataUsersItem } from '~/src/services/-users-get.schemas';
 
 interface UserActionsProps {
   user: GetUsers200DataUsersItem;

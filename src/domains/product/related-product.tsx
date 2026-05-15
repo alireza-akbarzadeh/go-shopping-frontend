@@ -5,8 +5,8 @@ import { useGetProductsIdRelated } from '~/src/services/-products-{id}-related-g
 
 export default function RelatedProduct() {
   const { id } = useParams();
-  const { data } = useGetProductsIdRelated(id);
-  const relatedProduct = data?.data?.data?.products;
+  const { data } = useGetProductsIdRelated(Number(id));
+  const relatedProduct = data?.data;
   const hasProduct = Boolean(relatedProduct?.length);
 
   return (

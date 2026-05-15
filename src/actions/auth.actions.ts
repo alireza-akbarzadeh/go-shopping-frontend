@@ -2,11 +2,11 @@
 
 import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { BASE_URL } from '@/lib/api-client';
 import { setAuthCookies, clearAuthCookies } from '@/lib/auth-helpers';
 import type { DtoLoginResponse } from '../services/-auth-login-post.schemas';
 import type { DtoRegisterResponse } from '../services/-auth-register-post.schemas';
 import type { DtoRefreshResponse } from '../services/-auth-refresh-post.schemas';
+import { BASE_URL } from '../lib/api/api-client';
 
 async function getCallbackUrlFromReferer(): Promise<string | null> {
   const headersList = await headers();
