@@ -11,9 +11,10 @@ import { Button } from '../ui/button';
 interface LikeButtonProps {
   isLiked: boolean;
   productId: number;
+  productName: string;
 }
 
-export function LikeButton({ isLiked, productId }: LikeButtonProps) {
+export function LikeButton({ isLiked, productId, productName }: LikeButtonProps) {
   const queryClient = useQueryClient();
   const [optimisticLiked, setOptimisticLiked] = useOptimistic(isLiked);
   const [isPending, startTransition] = useTransition();
@@ -41,7 +42,6 @@ export function LikeButton({ isLiked, productId }: LikeButtonProps) {
     }
 
     try {
-      // 4. Send mutation
       const response = await mutateAsync({
         id: productId,
         data: { like: newLikeState }
@@ -51,7 +51,7 @@ export function LikeButton({ isLiked, productId }: LikeButtonProps) {
         toast.error(response.message);
       }
 
-      toast.success(response.message);
+      toast.success(`Saved ${productName} to your likes ✨`);
 
       await queryClient.invalidateQueries({ queryKey });
     } catch (error) {

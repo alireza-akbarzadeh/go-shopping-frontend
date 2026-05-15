@@ -96,22 +96,22 @@ export function FeaturedProducts() {
           className='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8'
         >
           {products.map((product) => (
-            <motion.div key={product.id} variants={itemVariants} className='group'>
+            <motion.div key={product?.items?.id} variants={itemVariants} className='group'>
               <div className='bg-card border-border/50 hover:border-border relative overflow-hidden rounded-2xl border transition-all duration-500 hover:shadow-xl'>
                 {/* Product Image */}
                 <div
                   className='bg-secondary relative aspect-square cursor-pointer overflow-hidden'
-                  onClick={() => push(`/product/${product.id}`)}
+                  onClick={() => push(`/product/${product?.items?.id}`)}
                 >
                   <Image
-                    src={product?.images?.[0] as string}
-                    alt={product.name}
+                    src={product?.items?.images?.[0] as string}
+                    alt={product.items?.name || ''}
                     fill
                     className='object-cover transition-transform duration-700 group-hover:scale-110'
                   />
 
                   {/* Badges */}
-                  {isNewProduct(product.created_at) && (
+                  {product?.items?.is_new && (
                     <span className='bg-accent text-accent-foreground absolute top-3 left-3 rounded-full px-3 py-1 text-xs font-medium'>
                       New
                     </span>
@@ -140,28 +140,27 @@ export function FeaturedProducts() {
                 {/* Product Info */}
                 <div className='p-4'>
                   <span className='text-muted-foreground text-xs tracking-wider uppercase'>
-                    {product.category?.name}
+                    {product.items?.category?.name}
                   </span>
-                  <h3 className='mt-1 line-clamp-1 text-sm font-medium'>{product.name}</h3>
+                  <h3 className='mt-1 line-clamp-1 text-sm font-medium'>{product.items?.name}</h3>
 
                   {/* Rating */}
                   <div className='mt-2 flex items-center gap-1'>
                     <IconStar className='fill-accent text-accent h-3 w-3' />
                     <span className='text-muted-foreground text-xs'>
-                      {/* FIXME: add this model to product */}
-                      {/* {product.rating} ({product.reviews}) */}
-                      {4} ({60})
+                      {product.items?.rating} ({product.items?.reviews_count}){4} ({60})
                     </span>
                   </div>
 
                   {/* Price */}
                   <div className='mt-2 flex items-center gap-2'>
-                    <span className='font-semibold'>${product.price.toFixed(2)}</span>
-                    {product.compare_at_price && product.compare_at_price > product.price && (
-                      <span className='text-muted-foreground text-sm line-through'>
-                        ${product.compare_at_price.toFixed(2)}
-                      </span>
-                    )}
+                    <span className='font-semibold'>${product.items?.price?.toFixed(2)}</span>
+                    {product.items?.compare_at_price &&
+                      product.items?.compare_at_price > product.items?.price && (
+                        <span className='text-muted-foreground text-sm line-through'>
+                          ${product.items?.compare_at_price.toFixed(2)}
+                        </span>
+                      )}
                   </div>
                 </div>
               </div>
@@ -184,12 +183,4 @@ export function FeaturedProducts() {
       </div>
     </section>
   );
-}
-
-function isNewProduct(createdAt?: string): boolean {
-  if (!createdAt) return false;
-  const created = new Date(createdAt);
-  const now = new Date();
-  const diffDays = (now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24);
-  return diffDays <= 30;
 }

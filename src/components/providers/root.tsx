@@ -11,11 +11,13 @@ type TRootProvider = Readonly<PropsWithChildren>;
 
 export default function RootProvider({ children }: TRootProvider) {
   return (
-    <Direction defaultDir='ltr'>
-      <NuqsAdapter>
-        <Toaster />
-        <TanstackQueryProvider>{children}</TanstackQueryProvider>
-      </NuqsAdapter>
-    </Direction>
+    <ThemeProvider>
+      <Direction defaultDir='ltr'>
+        <NuqsAdapter>
+          <Toaster />
+          <TanstackQueryProvider>{children}</TanstackQueryProvider>
+        </NuqsAdapter>
+      </Direction>
+    </ThemeProvider>
   );
 }
