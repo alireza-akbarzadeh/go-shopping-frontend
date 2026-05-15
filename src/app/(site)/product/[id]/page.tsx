@@ -1,23 +1,21 @@
-import ProductDomain from '@/domains/product/product.domain';
-import { getQueryClient } from '@/lib/query-clinet';
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
+import ProductDetailDomain from '~/src/domains/product/product-detail-domain';
+import { prefetchWithAuth } from '~/src/lib/prefetch-with-auth';
 import { getGetProductsIdQueryOptions } from '~/src/services/-products-{id}-get';
 
 interface ProductPagePageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function ProductPage(props: ProductPagePageProps) {
+export default async function ProductDetailsPage(props: ProductPagePageProps) {
   const { params } = props;
-  const queryClient = getQueryClient();
   const { id } = await params;
 
-  const queryOptions = getGetProductsIdQueryOptions(id);
-  await queryClient.prefetchQuery(queryOptions);
+  const queryClient = await prefetchWithAuth(getGetProductsIdQueryOptions, id);
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <ProductDomain productId={id} />;
+      <ProductDetailDomain productId={id} />
     </HydrationBoundary>
   );
 }

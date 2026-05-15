@@ -23,22 +23,17 @@ export function LikeButton({ isLiked, productId, productName }: LikeButtonProps)
   const handleLikeAction = async () => {
     const newLikeState = !optimisticLiked;
 
-    startTransition(() => {
-      setOptimisticLiked(newLikeState);
-    });
+    startTransition(() => setOptimisticLiked(newLikeState));
 
     const queryKey = getGetProductsIdQueryKey(String(productId));
     const previousData = queryClient.getQueryData(queryKey) as GetProductsId200 | undefined;
 
+    // Optimistic update
     if (previousData?.data) {
-      const optimisticData = {
+      queryClient.setQueryData(queryKey, {
         ...previousData,
-        data: {
-          ...previousData.data,
-          is_liked: newLikeState
-        }
-      };
-      queryClient.setQueryData(queryKey, optimisticData);
+        data: { ...previousData.data, is_liked: newLikeState }
+      });
     }
 
     try {
@@ -48,20 +43,25 @@ export function LikeButton({ isLiked, productId, productName }: LikeButtonProps)
       });
 
       if (!response.success) {
-        toast.error(response.message);
+        // Revert optimistic update
+        if (previousData) queryClient.setQueryData(queryKey, previousData);
+        startTransition(() => setOptimisticLiked(isLiked));
+        return;
       }
 
-      toast.success(`Saved ${productName} to your likes ✨`);
+      // Success: show different message based on action
+      if (newLikeState) {
+        toast.success(`${productName} added to your likes ✨`);
+      } else {
+        toast.success(`${productName} removed from your likes`);
+      }
 
+      // Invalidate to refetch fresh data from server
       await queryClient.invalidateQueries({ queryKey });
     } catch (error) {
-      if (previousData) {
-        queryClient.setQueryData(queryKey, previousData);
-      }
-      startTransition(() => {
-        setOptimisticLiked(isLiked);
-      });
-      toast.error(error instanceof Error ? error.message : 'Failed to update like');
+      // Revert on network/other errors
+      if (previousData) queryClient.setQueryData(queryKey, previousData);
+      startTransition(() => setOptimisticLiked(isLiked));
     }
   };
 

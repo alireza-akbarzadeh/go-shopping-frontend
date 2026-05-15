@@ -12,7 +12,7 @@ import ProductReviews from './components/product-reviews';
 import { ProductSpecifications } from './components/product-specificaitons';
 import RelatedProduct from './related-product';
 
-export default function ProductPage({ productId }: { productId: string }) {
+export default function ProductDetailDomain({ productId }: { productId: string }) {
   const { data } = useGetProductsId(productId);
 
   const product = data?.data?.product;
